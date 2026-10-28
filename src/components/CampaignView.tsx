@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CampaignTabs, type MatcherRow, type TeamRow } from "./CampaignTabs";
 import { DonateButton } from "./DonateModal";
 import { GoalCard } from "./GoalCard";
+import { HeroCarousel } from "./HeroCarousel";
 import { ShareButton } from "./ShareButton";
 import { captchaProvider } from "@/lib/captcha";
 import { limits, paymentsMode } from "@/lib/config";
@@ -79,8 +80,7 @@ export async function CampaignView({ team }: { team: Team | null }) {
           {embed ? (
             <iframe src={embed} title="Campaign video" allow="fullscreen; picture-in-picture" loading="lazy" referrerPolicy="strict-origin-when-cross-origin" />
           ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={c.heroMedia[0] ?? "/hero.svg"} alt="" />
+            <HeroCarousel images={c.heroMedia.length ? c.heroMedia : ["/hero.svg"]} />
           )}
         </div>
         <GoalCard

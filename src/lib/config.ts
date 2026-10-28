@@ -46,7 +46,7 @@ export const defaultCampaign: Campaign = {
   fxRates: { GBP: 1.3, EUR: 1.1, CAD: 0.73, ILS: 0.27 },
   startsAt: null,
   endsAt: null,
-  heroMedia: ["/hero.svg"],
+  heroMedia: ["/hero/group.jpg", "/hero/dancing.jpg"],
   videoUrl: null,
   charityName: "Our Yeshiva",
   charityRegNo: "",
