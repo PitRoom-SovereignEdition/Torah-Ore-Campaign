@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Rays of light over an open book">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="78%" r="70%">
+      <stop offset="0" stop-color="#ffe9a8"/>
+      <stop offset="0.35" stop-color="#f2b84b" stop-opacity=".75"/>
+      <stop offset="1" stop-color="#14264a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0c1a38"/>
+      <stop offset="1" stop-color="#1d3566"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="520" fill="url(#bg)"/>
+  <rect width="1200" height="520" fill="url(#glow)"/>
+  <g stroke="#ffe9a8" stroke-opacity=".16" stroke-width="2">
+    <path d="M600 400 L40 0"/><path d="M600 400 L200 0"/><path d="M600 400 L360 0"/><path d="M600 400 L480 0"/>
+    <path d="M600 400 L600 0"/><path d="M600 400 L720 0"/><path d="M600 400 L840 0"/><path d="M600 400 L1000 0"/><path d="M600 400 L1160 0"/>
+  </g>
+  <g fill="#fff8e1">
+    <path d="M600 400 C540 372 430 366 340 384 L340 470 C430 452 540 458 600 486 Z" fill-opacity=".95"/>
+    <path d="M600 400 C660 372 770 366 860 384 L860 470 C770 452 660 458 600 486 Z" fill-opacity=".88"/>
+  </g>
+  <path d="M600 400 L600 486" stroke="#c98d1d" stroke-width="3"/>
+  <g stroke="#c9b27a" stroke-width="2" opacity=".7">
+    <path d="M372 402 C440 392 520 394 574 410"/><path d="M372 422 C440 412 520 414 574 430"/><path d="M372 442 C440 432 520 434 574 450"/>
+    <path d="M828 402 C760 392 680 394 626 410"/><path d="M828 422 C760 412 680 414 626 430"/><path d="M828 442 C760 432 680 434 626 450"/>
+  </g>
+  <g fill="#fff3c4" opacity=".9">
+    <circle cx="180" cy="90" r="2.4"/><circle cx="310" cy="160" r="1.8"/><circle cx="470" cy="70" r="2.2"/><circle cx="880" cy="110" r="2.4"/><circle cx="1010" cy="200" r="1.8"/><circle cx="740" cy="50" r="2"/>
+  </g>
+</svg>
