@@ -1,0 +1,295 @@
+<title>Yeshiva Campaign Preview</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+:root{
+  --bg:#f6f3ec;--card:#fff;--ink:#14213d;--muted:#5d6679;--line:#e4dfd2;--brand:#1d3566;--brand-ink:#fff;
+  --gold:#e0a526;--gold-deep:#a87808;--ok:#1f7a4d;--bad:#b3261e;--warn-bg:#fff1c2;--warn-ink:#5a4300;
+  --okbg:#d8f2e4;--okink:#14532d;--badbg:#fbd9d6;--badink:#7a1610;--shadow:0 6px 24px rgba(20,33,61,.08);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d1426;--card:#162038;--ink:#eef1f8;--muted:#a3adc4;--line:#26324f;--brand:#8fb0ff;--brand-ink:#0d1426;
+  --gold:#f2b84b;--gold-deep:#f2b84b;--warn-bg:#4a3a0a;--warn-ink:#ffe9a8;--okbg:#14391f;--okink:#a8e6c1;--badbg:#4a1a17;--badink:#ffc4be;
+  --shadow:0 6px 24px rgba(0,0,0,.35);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1426;--card:#162038;--ink:#eef1f8;--muted:#a3adc4;--line:#26324f;--brand:#8fb0ff;--brand-ink:#0d1426;
+  --gold:#f2b84b;--gold-deep:#f2b84b;--warn-bg:#4a3a0a;--warn-ink:#ffe9a8;--okbg:#14391f;--okink:#a8e6c1;--badbg:#4a1a17;--badink:#ffc4be;
+  --shadow:0 6px 24px rgba(0,0,0,.35);color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Hebrew",sans-serif;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 80px}
+.wrap{max-width:1120px;margin:0 auto}
+h1,h2,h3{margin:0;line-height:1.2}
+button,input,select,textarea{font:inherit;color:var(--ink)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.pv{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;background:var(--brand);color:var(--brand-ink);
+  margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px));font-size:13px}
+.pv b{letter-spacing:.4px}
+.seg{display:flex;gap:4px}
+.seg button{border:1px solid color-mix(in srgb,var(--brand-ink) 45%,transparent);background:transparent;color:var(--brand-ink);border-radius:999px;padding:3px 12px;cursor:pointer;font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--brand-ink);color:var(--brand)}
+.banner{text-align:center;padding:8px 12px;font-size:14px;font-weight:600;background:var(--warn-bg);color:var(--warn-ink);margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)))}
+.top{display:flex;justify-content:space-between;align-items:center;height:56px;border-bottom:1px solid var(--line);gap:12px}
+.brand{font-weight:800}
+.langs button{border:1px solid var(--line);background:transparent;border-radius:999px;padding:4px 12px;cursor:pointer;font-size:14px}
+.langs button[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.title{text-align:center;padding:28px 0 16px}
+.title h1{font-size:clamp(26px,5vw,42px);text-wrap:balance}
+.title p{color:var(--muted);margin:6px 0 0}
+.hero{display:grid;gap:20px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:880px){.hero{grid-template-columns:1.6fr 1fr}}
+.media{border-radius:14px;overflow:hidden;box-shadow:var(--shadow);min-height:260px;background:#14264a}
+.media svg{display:block;width:100%;height:100%;min-height:260px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:22px}
+.goal{display:flex;flex-direction:column;gap:14px;justify-content:center}
+.big{font-size:clamp(36px,6vw,54px);font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.sub{color:var(--muted);font-size:13px;font-weight:700;letter-spacing:.6px}
+.bar{position:relative;height:16px;border-radius:999px;background:var(--line);overflow:hidden}
+.bar i{position:absolute;inset:0 auto 0 0;display:block;background:var(--brand);transition:width .6s ease}
+.bar i.m{background:var(--gold)}
+.bar.s{height:10px;min-width:110px}
+.pct{display:flex;justify-content:space-between;color:var(--muted);font-weight:700}
+.row{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:14px;flex-wrap:wrap}
+.trophy{font-weight:800;color:var(--gold-deep)}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:12px;padding:14px 22px;font-weight:800;font-size:17px;cursor:pointer;background:var(--gold);color:#2a1d00;text-decoration:none}
+.btn:hover{filter:brightness(1.05)}.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.sec{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:600;font-size:15px;padding:10px 16px}
+.btn.pri{background:var(--brand);color:var(--brand-ink)}
+.btn.sm{font-size:14px;padding:7px 12px}
+.btn.block{width:100%}
+.desc{margin:18px 0;color:var(--muted)}
+.link{background:none;border:0;color:var(--brand);text-decoration:underline;cursor:pointer;padding:0}
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--line);margin:24px 0 16px;overflow-x:auto}
+.tabs button{background:none;border:0;padding:12px 18px;font-weight:700;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--gold)}
+.tabs .n{color:var(--muted);font-weight:500;margin-inline-start:6px}
+.bar-tools{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:14px}
+input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.bar-tools input{flex:1 1 220px;width:auto}
+.sorts{display:flex;gap:14px}
+.sorts button{background:none;border:0;color:var(--muted);cursor:pointer;padding:4px 0}
+.sorts button[aria-pressed="true"]{color:var(--ink);font-weight:800;text-decoration:underline;text-decoration-color:var(--gold);text-underline-offset:6px}
+.wall{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:640px){.wall{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:960px){.wall{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.donor{display:grid;grid-template-columns:48px minmax(0,1fr);gap:12px;padding:16px}
+.av{width:48px;height:48px;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;font-weight:800}
+.who{font-weight:800}.amt{color:var(--gold-deep);font-weight:800}
+.with{font-size:13px;color:var(--muted)}
+.with button{background:none;border:0;color:var(--brand);text-decoration:underline;cursor:pointer;padding:0;font-size:13px}
+.msg{margin:8px 0 0;overflow-wrap:anywhere}.ded{margin-top:6px;font-size:14px;color:var(--muted)}
+.foot{margin-top:10px;display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px}
+.like{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:2px 10px;cursor:pointer;font-size:14px}
+.like[aria-pressed="true"]{color:var(--bad);border-color:var(--bad)}
+.empty{text-align:center;color:var(--muted);padding:40px 0}
+.tw{overflow-x:auto}
+table.t{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+table.t th,table.t td{padding:12px 14px;text-align:start;border-bottom:1px solid var(--line);vertical-align:middle}
+table.t th{font-size:13px;color:var(--muted);letter-spacing:.4px}
+table.t tr:last-child td{border-bottom:0}
+.note{color:var(--muted);font-size:13px}.center{text-align:center}.stack{display:grid;gap:14px}
+.pill{display:inline-block;font-size:12px;font-weight:800;border-radius:999px;padding:2px 10px;background:var(--line)}
+.pill.ok{background:var(--okbg);color:var(--okink)}.pill.bad{background:var(--badbg);color:var(--badink)}.pill.warn{background:var(--warn-bg);color:var(--warn-ink)}
+.kpis{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:18px}
+.kpi .v{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums}.kpi .l{color:var(--muted);font-size:13px}
+.share{position:fixed;inset-block-end:calc(18px + env(safe-area-inset-bottom,0px));inset-inline-end:max(18px,env(safe-area-inset-right,0px));z-index:5;box-shadow:var(--shadow)}
+dialog{border:0;border-radius:18px;padding:0;width:min(640px,calc(100vw - 24px));max-height:calc(100dvh - 24px);background:var(--card);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(8,14,30,.6)}
+.mh{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--card)}
+.mb{padding:20px}
+.x{border:0;background:none;font-size:26px;cursor:pointer;color:var(--muted);line-height:1}
+label{display:block;font-size:14px;font-weight:700;margin-bottom:4px}
+.g2{display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:560px){.g2{grid-template-columns:1fr 1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;cursor:pointer;font-weight:700}
+.chip[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.check{display:flex;gap:8px;align-items:flex-start;font-weight:500;font-size:14px}
+.check input{width:auto;margin-top:4px}
+.ft{font-weight:800;margin:4px 0 -4px}
+.err{color:var(--bad);font-weight:600;font-size:14px}
+.ok{color:var(--ok);font-weight:600}
+.flash{position:fixed;inset-inline:0;top:calc(12px + env(safe-area-inset-top,0px));display:flex;justify-content:center;z-index:20;pointer-events:none}
+.flash div{background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:700;box-shadow:var(--shadow)}
+.foot2{color:var(--muted);font-size:13px;text-align:center;padding:30px 0 10px}
+@media(prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+
+<div class="pv" id="pvbar">
+  <span><b>PREVIEW</b> · static mock with demo data. No server, no payments, nothing is saved.</span>
+  <div class="seg" role="group" aria-label="Preview view">
+    <button type="button" id="v-site" aria-pressed="true">Donor site</button>
+    <button type="button" id="v-admin" aria-pressed="false">Admin panel</button>
+  </div>
+</div>
+
+<div id="app"></div>
+<div class="flash" id="flash" hidden><div id="flashmsg"></div></div>
+
+<dialog id="dlg" aria-labelledby="dt">
+  <div class="mh"><h2 id="dt"></h2><button class="x" type="button" id="dx" aria-label="Close">×</button></div>
+  <div class="mb" id="dbody"></div>
+</dialog>
+
+<script>
+(function(){
+"use strict";
+var T={en:{donate:"Donate",raised:"RAISED OF {g} GOAL",bonus:"BONUS GOAL",orig:"ORIGINAL GOAL",matched:"matched by our generous partners",more:"More…",donors:"Donors",teams:"Teams",matchers:"Matchers",about:"About",search:"Search donors",latest:"Latest",highest:"Highest",liked:"Most liked",loadmore:"More…",with:"With",none:"No donors match.",anon:"Anonymous",team:"Team",progress:"Progress",donations:"Donations",view:"View page",join:"Join a team",share:"Share",demo:"DEMO MODE: no real money is charged and no card details are collected.",amount:"Amount",currency:"Currency",details:"Your details",name:"Name",email:"Email",msg:"Message for the donor wall (optional)",ded:"In honor / memory of (optional)",anonl:"Give anonymously (hide my name)",wall:"Show my gift on the public donor wall",terms:"I agree to the terms and conditions",pay:"Pay now",sim:"Simulate successful payment (demo)",thanks:"Thank you! Your gift now appears on the wall.",back:"Back to the campaign",of:"of",dn:"{n} donations",addr:"Address",city:"City",country:"Country",stmt:"Your statement will show: YESHIVA",teamthanks:"Team sign-up form (preview only)"},
+he:{donate:"תרמו",raised:"גויסו מתוך יעד של {g}",bonus:"יעד בונוס",orig:"יעד מקורי",matched:"הותאם על ידי שותפינו הנדיבים",more:"עוד…",donors:"תורמים",teams:"קבוצות",matchers:"מתאימים",about:"אודות",search:"חיפוש תורמים",latest:"אחרונים",highest:"הגבוהים ביותר",liked:"הכי אהובים",loadmore:"עוד…",with:"עם",none:"לא נמצאו תורמים.",anon:"אנונימי",team:"קבוצה",progress:"התקדמות",donations:"תרומות",view:"לעמוד הקבוצה",join:"הצטרפו לקבוצה",share:"שיתוף",demo:"מצב הדגמה: לא מתבצע חיוב אמיתי ולא נאספים פרטי כרטיס.",amount:"סכום",currency:"מטבע",details:"הפרטים שלכם",name:"שם",email:"אימייל",msg:"הודעה לקיר התורמים (אופציונלי)",ded:"לכבוד / לזכר (אופציונלי)",anonl:"תרומה אנונימית (הסתר את שמי)",wall:"הצג את התרומה בקיר התורמים",terms:"אני מסכים/ה לתנאי השימוש",pay:"שלמו עכשיו",sim:"דמה תשלום מוצלח (הדגמה)",thanks:"תודה רבה! התרומה מופיעה כעת בקיר.",back:"חזרה לקמפיין",of:"מתוך",dn:"{n} תרומות",addr:"כתובת",city:"עיר",country:"ארץ",stmt:"בדף החשבון יופיע: YESHIVA",teamthanks:"טופס הרשמה לקבוצה (תצוגה בלבד)"}};
+var CAMP={title:"Our Yeshiva | Above & Beyond",sub:"Annual Campaign",goal:360000,bonus:500000,
+ desc:"Help us strengthen Torah learning for the next generation. Every gift, big or small, goes straight to our talmidim, rabbeim and facilities.",
+ about:"This is placeholder campaign text. In the real site you edit this from the admin panel.\n\nTeams of supporters raise funds from their own networks, and generous matchers multiply every gift while their pledges last."};
+var FX={USD:1,GBP:1.3,EUR:1.1,ILS:0.27};
+var TEAMS=[{id:"parents",name:"Parents Committee",goal:60000},{id:"alumni",name:"Alumni Network",goal:45000},{id:"class",name:"Class of 5785",goal:30000},{id:"rebbeim",name:"Rebbeim & Staff",goal:25000}];
+var MATCHER={name:"Anonymous Matching Fund",mult:1,cap:100000};
+var NAMES=["Moshe Cohen","Sarah Levi","Yossi Katz","Rivka Stern","David Friedman","Esther Gold","Avi Rosen","Leah Klein","Binyomin Weiss","Chana Adler","Shlomo Berger","Miriam Fox","Yaakov Brenner","Devorah Shapiro"];
+var MSGS=["Hatzlacha rabbah!","For the talmidim.","","Keep up the amazing work!","In honor of our rebbi.","","Proud alumnus.","May we share only simchos."];
+var AMTS=[18,36,100,180,360,1000,54,250,500,72];
+var BASE_DONORS=2480; var BASE_CASH_EXTRA=0;
+var S={lang:"en",view:"site",tab:"donors",team:null,sort:"latest",q:"",shown:12,liked:{},donations:[],extraCash:0,summary:false};
+(function seed(){var t=Date.now(),i,list=[];
+ for(i=0;i<48;i++){var a=AMTS[(i*7)%AMTS.length];list.push({id:"s"+i,name:NAMES[i%NAMES.length],anon:i%8===0,amt:a,cur:"USD",msg:MSGS[i%MSGS.length],ded:i%9===0?"In memory of a dear grandfather":"",team:i%4===0?null:TEAMS[i%4].id,likes:(i*5)%9,at:t-(i+1)*47*60000});}
+ S.donations=list;})();
+// base figures so the progress bar looks like a mid-campaign page
+var BASE_CASH=146300;
+function cash(){return BASE_CASH+S.donations.filter(function(d){return d.isNew}).reduce(function(s,d){return s+d.amt*FX[d.cur]},0)}
+function matched(){return Math.min(MATCHER.cap,cash()*MATCHER.mult)}
+function teamCash(id){var base={parents:31200,alumni:18400,class:9650,rebbeim:12100}[id]||0;return base+S.donations.filter(function(d){return d.isNew&&d.team===id}).reduce(function(s,d){return s+d.amt*FX[d.cur]},0)}
+function teamCount(id){var b={parents:212,alumni:131,class:77,rebbeim:96}[id]||0;return b+S.donations.filter(function(d){return d.isNew&&d.team===id}).length}
+var $=function(s){return document.querySelector(s)};
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function t(k){return T[S.lang][k]||k}
+function loc(){return S.lang==="he"?"he-IL":"en-US"}
+function money(v,cur){cur=cur||"USD";var w=Math.round(v*100)%100===0;return new Intl.NumberFormat(loc(),{style:"currency",currency:cur,minimumFractionDigits:w?0:2,maximumFractionDigits:w?0:2}).format(v)}
+function initials(n){var p=n.trim().split(/\s+/);return (p[0][0]+(p.length>1?p[p.length-1][0]:"")).toUpperCase()}
+function ago(ms){var m=Math.round((Date.now()-ms)/60000);if(m<1)return S.lang==="he"?"הרגע":"just now";if(m<60)return m+(S.lang==="he"?" דק׳":" min ago");var h=Math.round(m/60);return h+(S.lang==="he"?" שע׳":" h ago")}
+function flash(msg){$("#flashmsg").textContent=msg;$("#flash").hidden=false;clearTimeout(flash.t);flash.t=setTimeout(function(){$("#flash").hidden=true},2600)}
+var HERO='<svg viewBox="0 0 1200 520" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Rays of light over an open book"><defs><radialGradient id="g" cx="50%" cy="78%" r="70%"><stop offset="0" stop-color="#ffe9a8"/><stop offset=".35" stop-color="#f2b84b" stop-opacity=".75"/><stop offset="1" stop-color="#14264a" stop-opacity="0"/></radialGradient><linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c1a38"/><stop offset="1" stop-color="#1d3566"/></linearGradient></defs><rect width="1200" height="520" fill="url(#b)"/><rect width="1200" height="520" fill="url(#g)"/><g stroke="#ffe9a8" stroke-opacity=".16" stroke-width="2" fill="none"><path d="M600 400L40 0M600 400L200 0M600 400L360 0M600 400L480 0M600 400L600 0M600 400L720 0M600 400L840 0M600 400L1000 0M600 400L1160 0"/></g><path d="M600 400C540 372 430 366 340 384L340 470C430 452 540 458 600 486Z" fill="#fff8e1" fill-opacity=".95"/><path d="M600 400C660 372 770 366 860 384L860 470C770 452 660 458 600 486Z" fill="#fff8e1" fill-opacity=".88"/><path d="M600 400L600 486" stroke="#c98d1d" stroke-width="3" fill="none"/><g stroke="#c9b27a" stroke-width="2" opacity=".7" fill="none"><path d="M372 402C440 392 520 394 574 410M372 422C440 412 520 414 574 430M372 442C440 432 520 434 574 450M828 402C760 392 680 394 626 410M828 422C760 412 680 414 626 430M828 442C760 432 680 434 626 450"/></g></svg>';
+
+function wallItems(){
+ var q=S.q.trim().toLowerCase();
+ var r=S.donations.filter(function(d){return (!S.team||d.team===S.team)&&(!q||(d.anon?"anonymous":d.name).toLowerCase().indexOf(q)>-1||d.msg.toLowerCase().indexOf(q)>-1)});
+ var by={latest:function(a,b){return b.at-a.at},highest:function(a,b){return b.amt*FX[b.cur]-a.amt*FX[a.cur]||b.at-a.at},liked:function(a,b){return (b.likes+(S.liked[b.id]?1:0))-(a.likes+(S.liked[a.id]?1:0))||b.at-a.at}};
+ return r.sort(by[S.sort]);
+}
+function donorCard(d){
+ var tm=TEAMS.filter(function(x){return x.id===d.team})[0];var lk=d.likes+(S.liked[d.id]?1:0);
+ return '<article class="card donor"><div class="av" aria-hidden="true">'+(d.anon?"?":esc(initials(d.name)))+'</div><div><div class="who">'+esc(d.anon?t("anon"):d.name)+'</div><div class="amt">'+money(d.amt,d.cur)+'</div>'+
+ (tm?'<div class="with">'+t("with")+' <button type="button" data-team="'+tm.id+'">'+esc(tm.name)+'</button></div>':'')+
+ (d.msg?'<p class="msg">'+esc(d.msg)+'</p>':'')+(d.ded?'<div class="ded">🕯️ '+esc(d.ded)+'</div>':'')+
+ '<div class="foot"><span>'+ago(d.at)+'</span><button type="button" class="like" data-like="'+d.id+'" aria-pressed="'+(!!S.liked[d.id])+'" aria-label="Like">♥ '+lk+'</button></div></div></article>';
+}
+function renderWall(){
+ var items=wallItems(),box=$("#wallbox");if(!box)return;
+ box.innerHTML=items.length?'<div class="wall">'+items.slice(0,S.shown).map(donorCard).join("")+'</div>':'<p class="empty">'+t("none")+'</p>';
+ var mb=$("#morebtn");if(mb)mb.hidden=items.length<=S.shown;
+}
+function goalHTML(){
+ var tm=S.team&&TEAMS.filter(function(x){return x.id===S.team})[0];
+ var c=tm?teamCash(tm.id):cash(),m=tm?0:matched(),tot=c+m,goal=tm?tm.goal:CAMP.goal,passed=!tm&&tot>=CAMP.goal,target=passed?CAMP.bonus:goal;
+ var cnt=tm?teamCount(tm.id):BASE_DONORS+S.donations.filter(function(d){return d.isNew}).length;
+ return (passed?'<div class="trophy">🏆 '+t("bonus")+' · '+t("orig")+': '+money(CAMP.goal)+' ✓</div>':'')+
+ '<div><div class="big" aria-live="polite">'+money(tot)+'</div><div class="sub">'+t("raised").replace("{g}",money(target))+'</div></div>'+
+ '<div class="bar" role="progressbar" aria-valuenow="'+Math.round(tot/goal*100)+'" aria-valuemin="0" aria-valuemax="100"><i class="m" style="width:'+Math.min(100,tot/target*100)+'%"></i><i style="width:'+Math.min(100,c/target*100)+'%"></i></div>'+
+ '<div class="pct"><span>'+Math.round(tot/goal*100)+'%</span><span>'+t("dn").replace("{n}",cnt.toLocaleString(loc()))+'</span></div>'+
+ (m>0?'<div class="row"><span>'+money(c)+' + '+money(m)+'</span><span>'+t("matched")+'</span></div>':'')+
+ '<button class="btn" id="donatebtn" type="button">'+t("donate")+'</button>'+(tm?'<button type="button" class="link center" id="backbtn">← '+t("back")+'</button>':'');
+}
+function tabsHTML(){
+ var tm=S.team;var tabs=[["donors",t("donors"),(tm?teamCount(tm):BASE_DONORS+S.donations.filter(function(d){return d.isNew}).length).toLocaleString(loc())]];
+ if(!tm){tabs.push(["teams",t("teams"),TEAMS.length]);tabs.push(["matchers",t("matchers"),1])}
+ tabs.push(["about",t("about"),""]);
+ return '<div class="tabs" role="tablist">'+tabs.map(function(x){return '<button role="tab" type="button" data-tab="'+x[0]+'" aria-selected="'+(S.tab===x[0])+'">'+x[1]+(x[2]!==""?'<span class="n">'+x[2]+'</span>':'')+'</button>'}).join("")+'</div>';
+}
+function panelHTML(){
+ if(S.tab==="donors")return '<div class="bar-tools"><input type="search" id="q" value="'+esc(S.q)+'" placeholder="'+t("search")+'" aria-label="'+t("search")+'"><div class="sorts">'+
+  [["latest",t("latest")],["highest",t("highest")],["liked",t("liked")]].map(function(x){return '<button type="button" data-sort="'+x[0]+'" aria-pressed="'+(S.sort===x[0])+'">'+x[1]+'</button>'}).join("")+'</div></div><div id="wallbox"></div><p class="center" style="margin-top:18px"><button class="btn sec" type="button" id="morebtn">'+t("loadmore")+'</button></p>';
+ if(S.tab==="teams")return '<div class="tw"><table class="t"><thead><tr><th>'+t("team")+'</th><th>'+t("progress")+'</th><th>'+t("donations")+'</th><th></th></tr></thead><tbody>'+
+  TEAMS.slice().sort(function(a,b){return teamCash(b.id)-teamCash(a.id)}).map(function(x){return '<tr><td><strong>'+esc(x.name)+'</strong></td><td><div>'+money(teamCash(x.id))+' '+t("of")+' '+money(x.goal)+'</div><div class="bar s"><i style="width:'+Math.min(100,teamCash(x.id)/x.goal*100)+'%"></i></div></td><td>'+teamCount(x.id)+'</td><td><button class="link" type="button" data-team="'+x.id+'">'+t("view")+'</button></td></tr>'}).join("")+
+  '</tbody></table></div><p class="center" style="margin-top:16px"><button class="btn sec" type="button" id="joinbtn">'+t("join")+'</button></p>';
+ if(S.tab==="matchers")return '<div class="card"><strong>'+MATCHER.name+'</strong> · 1:1<div class="bar s" style="margin:8px 0"><i class="m" style="width:'+Math.min(100,matched()/MATCHER.cap*100)+'%"></i></div><span class="note">'+money(matched())+' '+t("of")+' '+money(MATCHER.cap)+'</span></div>';
+ return '<div class="card">'+CAMP.about.split("\n\n").map(function(p,i){return '<p style="margin:'+(i?12:0)+'px 0 0">'+esc(p)+'</p>'}).join("")+'</div>';
+}
+function siteHTML(){
+ var tm=S.team&&TEAMS.filter(function(x){return x.id===S.team})[0];
+ var short=CAMP.desc.slice(0,150).trim()+"…";
+ return '<div class="banner" role="status">'+t("demo")+'</div>'+
+ '<div class="wrap"><header class="top"><span class="brand">Our Yeshiva</span><div class="langs" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="'+(S.lang==="en")+'">EN</button> <button type="button" data-lang="he" aria-pressed="'+(S.lang==="he")+'">עב</button></div></header>'+
+ '<div class="title"><h1>'+esc(tm?tm.name:CAMP.title)+'</h1><p>'+esc(tm?CAMP.title:CAMP.sub)+'</p></div>'+
+ '<div class="hero"><div class="media">'+HERO+'</div><aside class="card goal" id="goal" aria-label="Campaign progress">'+goalHTML()+'</aside></div>'+
+ '<div class="desc">'+(S.summary?esc(CAMP.desc):esc(short)+' <button type="button" class="link" id="moredesc">'+t("more")+'</button>')+'</div>'+
+ tabsHTML()+'<div id="panel">'+panelHTML()+'</div><div class="foot2">Our Yeshiva · Reg. no. (set in admin) · Terms</div></div>'+
+ '<button class="btn pri sm share" type="button" id="sharebtn">↗ '+t("share")+'</button>';
+}
+function adminHTML(){
+ var rows=[["bad","Production database","Local JSON store in use. Set STORE=supabase before real money."],["warn","Payments mode","PAYMENTS_MODE=demo (fake checkout, no real money)"],["bad","Stripe secret key","STRIPE_SECRET_KEY missing or malformed."],["bad","Stripe publishable key","NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY missing."],["bad","Key pair matches (test/test or live/live)","Mixing a live secret key with a test publishable key breaks checkout."],["bad","Stripe webhook secret","Without it no donation can ever be confirmed."],["bad","Site served over HTTPS","Live payments require https."],["ok","Admin protected","ADMIN_PASSWORD plus ADMIN_SESSION_SECRET set."],["warn","Bot protection","No CAPTCHA configured. Strongly recommended."],["warn","Confirmation emails","No RESEND_API_KEY: confirmations are only logged."],["warn","Stripe account belongs to the yeshiva","Manual check with the yeshiva's advisers."]];
+ var newOnes=S.donations.filter(function(d){return d.isNew});
+ var recent=S.donations.slice().sort(function(a,b){return b.at-a.at}).slice(0,8);
+ return '<div class="wrap" style="padding-top:24px"><h1 style="margin-bottom:6px">Admin</h1><p class="note" style="margin-bottom:16px">Preview of the admin panel. Tabs in the real one: Overview · Donations · Teams · Matchers · Campaign.</p>'+
+ '<div class="kpis"><div class="card kpi"><div class="v">'+money(cash())+'</div><div class="l">Cash raised</div></div><div class="card kpi"><div class="v">'+money(matched())+'</div><div class="l">Matched (kept separate)</div></div><div class="card kpi"><div class="v">'+(BASE_DONORS+newOnes.length).toLocaleString("en-US")+'</div><div class="l">Donors</div></div><div class="card kpi"><div class="v">0</div><div class="l">Flagged for review</div></div><div class="card kpi"><div class="v">2</div><div class="l">Teams awaiting approval</div></div></div>'+
+ '<div class="card" style="margin-bottom:18px"><h2 style="margin-bottom:6px">Payment system · <span class="pill warn">demo</span></h2><p class="note" style="margin-bottom:12px">Payments are switched on by environment variables, never by a button on the website. Status: <strong style="color:var(--bad)">not ready for real money yet.</strong> (Red rows are what you would fix during go-live.)</p><div class="tw"><table class="t"><tbody>'+
+ rows.map(function(r){return '<tr><td style="width:84px"><span class="pill '+r[0]+'">'+(r[0]==="ok"?"OK":r[0]==="bad"?"FIX":"CHECK")+'</span></td><td><strong>'+r[1]+'</strong><div class="note">'+r[2]+'</div></td></tr>'}).join("")+'</tbody></table></div></div>'+
+ '<div class="card"><h2 style="margin-bottom:10px">Recent donations</h2><div class="tw"><table class="t"><thead><tr><th>When</th><th>Donor</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+
+ recent.map(function(d){return '<tr><td class="note">'+ago(d.at)+'</td><td>'+esc(d.name)+'<div class="note">'+(d.isNew?"you@example.com · DEMO":"donor@example.com · DEMO")+'</div></td><td>'+money(d.amt,d.cur)+'</td><td><span class="pill ok">succeeded</span></td></tr>'}).join("")+'</tbody></table></div></div></div>';
+}
+function render(){
+ var app=$("#app");var y=window.scrollY;
+ app.innerHTML=S.view==="site"?siteHTML():adminHTML();
+ $("#v-site").setAttribute("aria-pressed",S.view==="site");$("#v-admin").setAttribute("aria-pressed",S.view==="admin");
+ document.documentElement.lang=S.lang;document.documentElement.dir=S.lang==="he"?"rtl":"ltr";
+ if(S.view==="site")renderWall();
+ window.scrollTo(0,y);
+}
+function refreshGoal(){var g=$("#goal");if(g){g.innerHTML=goalHTML()}if(S.tab==="matchers"||S.tab==="teams"){var p=$("#panel");if(p)p.innerHTML=panelHTML()}}
+
+function openDonate(){
+ var d=$("#dlg");$("#dt").textContent=t("donate")+(S.team?" · "+TEAMS.filter(function(x){return x.id===S.team})[0].name:"");
+ var chips=[18,36,100,180,360,1000].map(function(a){return '<button type="button" class="chip" data-p="'+a+'" aria-pressed="false">$'+a.toLocaleString("en-US")+'</button>'}).join("");
+ $("#dbody").innerHTML='<div class="banner" style="margin:0 0 14px;border-radius:8px">'+t("demo")+'</div><form id="df" class="stack"><div><label for="amt">'+t("amount")+'</label><div class="chips">'+chips+'</div><div class="g2"><input id="amt" inputmode="decimal" autocomplete="off" required placeholder="0.00"><select id="cur" aria-label="'+t("currency")+'"><option>USD</option><option>GBP</option><option>EUR</option><option>ILS</option></select></div><div class="note" id="fxn" hidden></div></div>'+
+ '<div class="ft">'+t("details")+'</div><div class="g2"><div><label for="fn">'+t("name")+'*</label><input id="fn" required autocomplete="name"></div><div><label for="fe">'+t("email")+'*</label><input id="fe" type="email" required autocomplete="email"></div><div><label for="fa">'+t("addr")+'*</label><input id="fa" required></div><div><label for="fc">'+t("city")+'*</label><input id="fc" required></div></div>'+
+ '<div><label for="fm">'+t("msg")+'</label><textarea id="fm" rows="2" maxlength="300"></textarea></div><div><label for="fd">'+t("ded")+'</label><input id="fd" maxlength="200"></div>'+
+ '<label class="check"><input type="checkbox" id="fan">'+t("anonl")+'</label><label class="check"><input type="checkbox" id="fw" checked>'+t("wall")+'</label><label class="check"><input type="checkbox" id="ft" required><span>'+t("terms")+'*</span></label>'+
+ '<button class="btn block" id="pay" disabled type="submit">'+t("pay")+'</button><p class="note center">'+t("stmt")+'</p></form>';
+ var amt=$("#amt"),cur=$("#cur"),pay=$("#pay");
+ function upd(){var v=parseFloat(amt.value.replace(/,/g,""));var ok=isFinite(v)&&v>=1;pay.disabled=!ok;pay.textContent=t("pay")+(ok?" · "+money(v,cur.value):"");
+  var f=$("#fxn");if(cur.value!=="USD"){f.hidden=false;f.textContent="1 "+cur.value+" = "+FX[cur.value]+" USD"}else f.hidden=true;
+  [].forEach.call(document.querySelectorAll("[data-p]"),function(b){b.setAttribute("aria-pressed",cur.value==="USD"&&v===Number(b.dataset.p))})}
+ amt.addEventListener("input",upd);cur.addEventListener("change",upd);
+ $("#dbody").addEventListener("click",function(e){var p=e.target.closest("[data-p]");if(p){amt.value=p.dataset.p;upd()}});
+ $("#df").addEventListener("submit",function(e){e.preventDefault();var v=parseFloat(amt.value.replace(/,/g,""));
+  var rec={name:$("#fn").value.trim(),amt:v,cur:cur.value,anon:$("#fan").checked,msg:$("#fm").value.trim(),ded:$("#fd").value.trim(),show:$("#fw").checked};
+  $("#dbody").innerHTML='<div class="stack"><p class="note">'+t("demo")+'</p><button class="btn block" id="sim" type="button">'+t("sim")+'</button></div>';
+  $("#sim").addEventListener("click",function(){
+   S.donations.unshift({id:"n"+Date.now(),name:rec.name||"Friend",anon:rec.anon,amt:rec.amt,cur:rec.cur,msg:rec.msg,ded:rec.ded,team:S.team,likes:0,at:Date.now(),isNew:true,hidden:!rec.show});
+   if(!rec.show)S.donations[0].hidden=true;
+   $("#dbody").innerHTML='<div class="center stack"><h2>'+t("thanks")+'</h2><button class="btn sec" id="cl" type="button">'+t("back")+'</button></div>';
+   $("#cl").addEventListener("click",function(){d.close()});
+   S.tab="donors";S.sort="latest";S.q="";render();});
+ });
+ d.showModal();
+}
+// hidden-from-wall gifts still count in totals but are excluded from the list
+var _wi=wallItems;wallItems=function(){return _wi().filter(function(d){return !d.hidden})};
+
+document.addEventListener("click",function(e){
+ var el=e.target.closest("button");if(!el)return;
+ if(el.id==="v-site"){S.view="site";render();return}
+ if(el.id==="v-admin"){S.view="admin";render();return}
+ if(el.dataset.lang){S.lang=el.dataset.lang;render();return}
+ if(el.dataset.tab){S.tab=el.dataset.tab;S.shown=12;var p=$("#panel");$("#panel").innerHTML=panelHTML();[].forEach.call(document.querySelectorAll(".tabs button"),function(b){b.setAttribute("aria-selected",b.dataset.tab===S.tab)});if(S.tab==="donors")renderWall();return}
+ if(el.dataset.sort){S.sort=el.dataset.sort;[].forEach.call(document.querySelectorAll("[data-sort]"),function(b){b.setAttribute("aria-pressed",b.dataset.sort===S.sort)});renderWall();return}
+ if(el.dataset.like){var id=el.dataset.like;if(!S.liked[id]){S.liked[id]=true;renderWall()}return}
+ if(el.dataset.team){S.team=el.dataset.team;S.tab="donors";S.shown=12;S.q="";render();window.scrollTo(0,0);return}
+ if(el.id==="backbtn"){S.team=null;S.tab="teams";render();return}
+ if(el.id==="morebtn"){S.shown+=12;renderWall();return}
+ if(el.id==="moredesc"){S.summary=true;render();return}
+ if(el.id==="donatebtn"){openDonate();return}
+ if(el.id==="joinbtn"){flash(t("teamthanks"));return}
+ if(el.id==="sharebtn"){flash(S.lang==="he"?"הקישור הועתק":"Link copied (preview)");return}
+ if(el.id==="dx"){$("#dlg").close()}
+});
+document.addEventListener("input",function(e){if(e.target.id==="q"){S.q=e.target.value;S.shown=12;renderWall()}});
+$("#dlg").addEventListener("click",function(e){if(e.target===$("#dlg"))$("#dlg").close()});
+$("#dlg").addEventListener("close",function(){refreshGoal()});
+render();
+})();
+</script>

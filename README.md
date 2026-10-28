@@ -93,3 +93,9 @@ npm run build
   aggregate and use a shared rate limiter (Vercel firewall / Upstash). The brief flags this as a hard part.
 - The Stripe path is unit-tested (signed webhooks, replays, tampering, refunds) but has **not** been exercised
   against Stripe's live servers from this repo. Run the Stripe test-mode checklist in `docs/GO-LIVE.md` first.
+
+## Previewing without hosting anything
+
+`preview/index.html` is a single self-contained file: a clickable mock of the donor site and the admin panel on demo
+data (no server, no payments). Open it in any browser, or publish it anywhere that serves static files.
+To see the real app instead, follow "Try it in 2 minutes" above.
