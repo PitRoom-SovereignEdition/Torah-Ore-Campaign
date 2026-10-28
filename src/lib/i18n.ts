@@ -94,6 +94,8 @@ const en = {
   checkout: "Checkout",
   daysLeft: "Days left",
   goalReached: "Goal reached!",
+  raised: "Raised",
+  rulesTitle: "How the leaderboard works",
 };
 
 const he: typeof en = {
@@ -188,6 +190,8 @@ const he: typeof en = {
   checkout: "תשלום",
   daysLeft: "ימים לסיום",
   goalReached: "היעד הושג!",
+  raised: "גויס",
+  rulesTitle: "איך פועלת טבלת הדירוג",
 };
 
 export const dictionaries = { en, he } as const;

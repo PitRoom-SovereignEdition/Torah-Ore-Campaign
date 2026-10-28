@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { defaultCampaign } from "../config";
-import type { Campaign, Donation, Matcher, Team } from "../types";
+import type { AuditEntry, Campaign, Donation, Matcher, Team } from "../types";
 import type { Store } from "./types";
 
 const snake = (s: string) => s.replace(/[A-Z]/g, (c) => "_" + c.toLowerCase());
@@ -117,6 +117,14 @@ export class SupabaseStore implements Store {
       if (!rows || rows.length < 1000) break;
     }
     return out;
+  }
+
+  async appendAudit(e: AuditEntry) {
+    must(await this.db.from("audit_log").insert(toRow(e)), "appendAudit");
+  }
+  async listAudit(limit: number) {
+    const rows = must(await this.db.from("audit_log").select("*").order("at", { ascending: false }).limit(limit), "listAudit");
+    return (rows ?? []).map((r) => fromRow<AuditEntry>(r));
   }
 
   async recordEvent(eventId: string) {

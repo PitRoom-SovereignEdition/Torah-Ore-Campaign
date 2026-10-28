@@ -24,7 +24,20 @@ export interface Campaign {
   receiptFooter: string;
   termsUrl: string;
   contactEmail: string;
+  /** What "winning" means on the team leaderboard. Must be chosen by the charity before launch. */
+  leaderboardBasis: LeaderboardBasis;
+  /** Whether a fundraiser's own gift to their own page counts toward their ranking. */
+  selfDonation: "count" | "exclude";
+  /** Published contest cutoff. Rankings are provisional until then. */
+  cutoffAt: string | null;
+  /** Public contest rules. Blank = auto-generated from the settings above. */
+  leaderboardRules: string;
 }
+
+export type LeaderboardBasis = "money" | "gifts" | "donors";
+export type Role = "organizer" | "finance";
+export type ReviewState = "none" | "open" | "cleared" | "excluded";
+export type DisputeState = "none" | "open" | "won" | "lost";
 
 export interface Team {
   id: string;
@@ -66,6 +79,22 @@ export interface Donation {
   state: string;
   zip: string;
   country: string;
+  /** Internal donor identity. Defaults to a hash of the email; organizers can merge/split with a logged reason. */
+  donorId: string;
+  /** Salted hash of the requester IP (never the IP itself). Weak signal only: shared networks are normal. */
+  ipHash: string;
+  /** Processor card fingerprint (not a card number). Only when the processor provides one. */
+  cardFingerprint: string | null;
+  cardChecks: { cvc?: string | null; postal?: string | null; line1?: string | null } | null;
+  cardFunding: string | null;
+  cardCountry: string | null;
+  /** Private to organizers/finance. Never in any public API. */
+  reviewState: ReviewState;
+  signals: string[];
+  disputeState: DisputeState;
+  /** Offline gifts: who entered it, and the different person who verified it. */
+  enteredBy: string | null;
+  verifiedBy: string | null;
   provider: PaymentProvider;
   paymentRef: string | null;
   status: DonationStatus;
@@ -120,4 +149,15 @@ export interface PublicDonation {
   teamName: string | null;
   likes: number;
   createdAt: string;
+}
+
+export interface AuditEntry {
+  id: string;
+  at: string;
+  /** "organizer", "finance", or "system" (webhooks). */
+  actor: string;
+  action: string;
+  targetType: string;
+  targetId: string;
+  detail: Record<string, unknown>;
 }

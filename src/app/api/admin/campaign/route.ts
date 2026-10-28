@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { handleError, json, readJson, requireAdminApi } from "@/lib/http";
+import { audit } from "@/lib/audit";
+import { handleError, json, readJson, requireRole } from "@/lib/http";
 import { isSupportedCurrency } from "@/lib/money";
 import { getStore } from "@/lib/store";
 
@@ -21,18 +22,31 @@ const schema = z.object({
   receiptFooter: z.string().trim().max(2000),
   termsUrl: z.string().trim().max(500),
   contactEmail: z.string().trim().max(200),
+  leaderboardBasis: z.enum(["money", "gifts", "donors"]),
+  selfDonation: z.enum(["count", "exclude"]),
+  cutoffAt: z.string().nullable(),
+  leaderboardRules: z.string().trim().max(3000),
 });
 
 export async function POST(req: Request) {
-  const denied = await requireAdminApi(req);
-  if (denied) return denied;
+  const auth = await requireRole(req, ["organizer"]);
+  if ("denied" in auth) return auth.denied;
   try {
     const i = schema.parse(await readJson(req));
     const { goal, bonusGoal, ...rest } = i;
-    const c = await getStore().saveCampaign({
+    const store = getStore();
+    const before = await store.getCampaign();
+    const c = await store.saveCampaign({
       ...rest,
       goalCents: Math.round(goal * 100),
       bonusGoalCents: bonusGoal ? Math.round(bonusGoal * 100) : null,
+    });
+    const changed = Object.keys(c).filter((k) => JSON.stringify((c as unknown as Record<string, unknown>)[k]) !== JSON.stringify((before as unknown as Record<string, unknown>)[k]));
+    await audit(auth.role, "campaign.update", "campaign", c.id, {
+      changed,
+      goalFrom: before.goalCents, goalTo: c.goalCents,
+      basisFrom: before.leaderboardBasis, basisTo: c.leaderboardBasis,
+      selfDonationFrom: before.selfDonation, selfDonationTo: c.selfDonation,
     });
     return json({ ok: true, campaign: c });
   } catch (e) {

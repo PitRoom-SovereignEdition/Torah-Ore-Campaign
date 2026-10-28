@@ -1,3 +1,4 @@
+import { donorIdFor, riskDefaults } from "./donations";
 import { newId } from "./ids";
 import type { Store } from "./store/types";
 
@@ -28,6 +29,7 @@ export async function seedDemo(store: Store): Promise<void> {
       campaignAmountCents: cents, fxRate: 1, refundedCents: 0, displayName: i % 7 === 0 ? "Anonymous" : name, anonymous: i % 7 === 0,
       showOnWall: true, message: MSGS[i % MSGS.length], dedication: i % 9 === 0 ? "In memory of a dear grandfather" : "",
       donorName: name, donorEmail: "demo@example.invalid", reference: "", address: "1 Demo St", city: "Demo City", state: "", zip: "", country: "USA",
+      donorId: donorIdFor(`${name}@demo.invalid`), ipHash: "", ...riskDefaults(),
       provider: "demo", paymentRef: `demo_seed_${i}`, status: "succeeded", isDemo: true, createdAt: ts, updatedAt: ts,
     });
   }

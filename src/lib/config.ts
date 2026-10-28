@@ -57,8 +57,22 @@ export const defaultCampaign: Campaign = {
   receiptFooter: "",
   termsUrl: "",
   contactEmail: "",
+  leaderboardBasis: "money",
+  selfDonation: "count",
+  cutoffAt: null,
+  leaderboardRules: "",
 };
 
 export function adminConfigured(): boolean {
   return !!process.env.ADMIN_PASSWORD && (process.env.ADMIN_SESSION_SECRET ?? "").length >= 16;
+}
+
+/** A second login (different password) so offline gifts can be verified by a second person. */
+export function financeConfigured(): boolean {
+  return adminConfigured() && !!process.env.FINANCE_PASSWORD && process.env.FINANCE_PASSWORD !== process.env.ADMIN_PASSWORD;
+}
+
+/** Organizers see donor contact details only if the charity decides so. Finance always does. */
+export function organizerSeesContact(): boolean {
+  return process.env.ORGANIZER_SEES_CONTACT === "true";
 }

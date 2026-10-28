@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { DonationError } from "./donations";
-import { isAdmin } from "./auth";
+import { getRole } from "./auth";
+import type { Role } from "./types";
 
 export const json = (body: unknown, status = 200) => NextResponse.json(body, { status, headers: { "cache-control": "no-store" } });
 
@@ -12,12 +13,17 @@ export function handleError(e: unknown) {
   return json({ error: "Something went wrong. Please try again." }, 500);
 }
 
-/** Admin API guard. Also blocks cross-site form posts by requiring same-origin. */
-export async function requireAdminApi(req: Request): Promise<NextResponse | null> {
-  if (!(await isAdmin())) return json({ error: "Unauthorized" }, 401);
+/**
+ * Admin API guard: must be signed in with one of `roles`, and same-origin (blocks cross-site posts).
+ * Returns the caller's role so handlers can record it in the audit log.
+ */
+export async function requireRole(req: Request, roles: Role[]): Promise<{ role: Role } | { denied: NextResponse }> {
+  const role = await getRole();
+  if (!role) return { denied: json({ error: "Unauthorized" }, 401) };
+  if (!roles.includes(role)) return { denied: json({ error: "Your role cannot do this." }, 403) };
   const origin = req.headers.get("origin");
-  if (origin && new URL(origin).host !== req.headers.get("host")) return json({ error: "Bad origin" }, 403);
-  return null;
+  if (origin && new URL(origin).host !== req.headers.get("host")) return { denied: json({ error: "Bad origin" }, 403) };
+  return { role };
 }
 
 export async function readJson<T>(req: Request): Promise<T> {

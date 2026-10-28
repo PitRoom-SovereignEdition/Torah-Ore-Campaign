@@ -242,3 +242,7 @@ dialog::backdrop { background: rgba(5, 12, 45, .65); backdrop-filter: blur(3px);
 .kpis { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); margin-bottom: 18px; }
 .kpi .v { font: 800 26px var(--display); }
 .kpi .l { color: var(--muted); font-size: 13px; }
+
+table.t th.official, table.t td.official { background: color-mix(in srgb, var(--sun) 16%, transparent); }
+.rules { font-size: 14px; color: var(--muted); }
+.rules strong { color: var(--ink); }

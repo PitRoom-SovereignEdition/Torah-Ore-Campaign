@@ -24,7 +24,7 @@ You will move through three stages. Do not skip ahead. `/admin → Overview` sho
    - `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` (`openssl rand -hex 24`)
    - `PAYMENTS_MODE=stripe`, `STRIPE_SECRET_KEY=sk_test_…`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_…`
 3. **Stripe → Developers → Webhooks**: add endpoint `https://your-domain/api/webhooks/stripe` with events
-   `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`, `charge.refunded`.
+   `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`, `charge.succeeded`, `charge.refunded`, `charge.dispute.created`, `charge.dispute.closed`.
    Copy the signing secret into `STRIPE_WEBHOOK_SECRET`. **Without it no donation is ever confirmed.**
 4. **Bot protection** (strongly recommended, card-testing attacks target donation forms): create a free Cloudflare
    Turnstile or hCaptcha site and set `CAPTCHA_PROVIDER`, `CAPTCHA_SECRET_KEY`, `NEXT_PUBLIC_CAPTCHA_SITE_KEY`.
@@ -36,6 +36,8 @@ You will move through three stages. Do not skip ahead. `/admin → Overview` sho
    - [ ] Refund from Admin → donation `refunded`, total drops, matcher cap frees up.
    - [ ] Replay the same webhook event in Stripe → nothing double counts.
    - [ ] Hebrew + mobile + Apple/Google Pay (enable wallets in the Stripe dashboard) look right.
+   - [ ] Offline gift: entered as one role, does NOT count until the other role verifies it (set `FINANCE_PASSWORD`).
+   - [ ] Fraud screening: set Stripe Radar rules per `docs/FRAUD-AND-LEADERBOARD.md`; trigger a test dispute (card `4000 0000 0000 0259`) and confirm it appears in Admin → Review.
    - [ ] Offline gift, matcher, team sign-up → approve → team page → gift credited "With X".
    - [ ] `/admin → Overview` shows no red FIX rows for test keys.
 

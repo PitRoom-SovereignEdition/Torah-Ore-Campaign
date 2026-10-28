@@ -1,5 +1,5 @@
 import { paymentsMode } from "@/lib/config";
-import { applyPaymentEvent, invalidateTotals } from "@/lib/donations";
+import { applyPaymentEvent, assessDonation, invalidateTotals } from "@/lib/donations";
 import { handleError, json, readJson } from "@/lib/http";
 import { sendConfirmation } from "@/lib/mailer";
 import { getStore } from "@/lib/store";
@@ -15,6 +15,7 @@ export async function POST(req: Request) {
     const r = await applyPaymentEvent({ type: "succeeded", paymentRef: d.paymentRef, amountCents: d.amountCents, currency: d.currency });
     if (r.changed && r.donation) {
       invalidateTotals();
+      await assessDonation(r.donation.id);
       await sendConfirmation(await store.getCampaign(), r.donation);
     }
     return json({ ok: true });

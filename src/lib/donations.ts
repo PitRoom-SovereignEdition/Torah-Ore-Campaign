@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { limits, paymentsMode } from "./config";
-import { newId, nowIso } from "./ids";
+import { audit } from "./audit";
+import { newId, nowIso, sha256 } from "./ids";
+import { evaluateSignals, norm } from "./risk";
+import { rankTeams, type BoardRow } from "./leaderboard";
 import { computeTotals, effectiveCents } from "./matching";
 import { convertCents, initialsOf, isSupportedCurrency } from "./money";
 import { getStore } from "./store";
@@ -37,6 +40,21 @@ export class DonationError extends Error {
   }
 }
 
+/** Default identity key. Organizers can merge or split donors manually (logged); see docs/FRAUD-AND-LEADERBOARD.md. */
+export const donorIdFor = (email: string) => "d_" + sha256(norm(email)).slice(0, 16);
+
+export const riskDefaults = () => ({
+  cardFingerprint: null,
+  cardChecks: null,
+  cardFunding: null,
+  cardCountry: null,
+  reviewState: "none" as const,
+  signals: [] as string[],
+  disputeState: "none" as const,
+  enteredBy: null,
+  verifiedBy: null,
+});
+
 export function campaignOpen(c: Campaign, now = new Date()): boolean {
   if (c.startsAt && now < new Date(c.startsAt)) return false;
   if (c.endsAt && now > new Date(c.endsAt)) return false;
@@ -53,7 +71,7 @@ export function rateFor(c: Campaign, currency: string): number | null {
  * Turn validated browser input into a pending Donation. All pricing decisions are made here
  * on the server: amount bounds, currency allow-list, FX rate, team attribution.
  */
-export async function buildPendingDonation(c: Campaign, input: DonateInput): Promise<Donation> {
+export async function buildPendingDonation(c: Campaign, input: DonateInput, ipHash = ""): Promise<Donation> {
   if (!campaignOpen(c)) throw new DonationError("This campaign is not currently accepting donations.", 409);
   const currency = input.currency.toUpperCase();
   const rate = isSupportedCurrency(currency) ? rateFor(c, currency) : null;
@@ -96,6 +114,9 @@ export async function buildPendingDonation(c: Campaign, input: DonateInput): Pro
     state: input.state,
     zip: input.zip,
     country: input.country,
+    donorId: donorIdFor(input.donorEmail),
+    ipHash,
+    ...riskDefaults(),
     provider: mode === "stripe" ? "stripe" : "demo",
     paymentRef: null,
     status: "pending",
@@ -116,7 +137,9 @@ const ALLOWED: Record<DonationStatus, DonationStatus[]> = {
 export type PaymentEvent =
   | { type: "succeeded"; paymentRef: string; amountCents: number; currency: string }
   | { type: "failed"; paymentRef: string }
-  | { type: "refunded"; paymentRef: string; refundedCents: number };
+  | { type: "refunded"; paymentRef: string; refundedCents: number }
+  | { type: "card"; paymentRef: string; fingerprint: string | null; checks: Donation["cardChecks"]; funding: string | null; country: string | null }
+  | { type: "dispute"; paymentRef: string; state: "open" | "won" | "lost" };
 
 /**
  * The ONLY path by which a donation becomes "succeeded". Called from the signature-verified Stripe
@@ -127,6 +150,25 @@ export async function applyPaymentEvent(ev: PaymentEvent): Promise<{ donation: D
   const store = getStore();
   const d = await store.findDonationByPaymentRef(ev.paymentRef);
   if (!d) return { donation: null, changed: false };
+
+  if (ev.type === "card") {
+    const next = await store.updateDonation(d.id, { cardFingerprint: ev.fingerprint, cardChecks: ev.checks, cardFunding: ev.funding, cardCountry: ev.country });
+    return { donation: next, changed: true };
+  }
+
+  if (ev.type === "dispute") {
+    if (ev.state === "lost") {
+      // Funds are gone: treat as a full reversal so rankings and totals fall back to the ledger.
+      const r = await applyPaymentEvent({ type: "refunded", paymentRef: ev.paymentRef, refundedCents: d.amountCents });
+      const next = await store.updateDonation(d.id, { disputeState: "lost" });
+      return { donation: next, changed: r.changed || true };
+    }
+    if (d.disputeState === ev.state) return { donation: d, changed: false };
+    // Won or open: recorded separately. Nothing is auto-excluded; a reviewer decides.
+    const patch: Partial<Donation> = { disputeState: ev.state };
+    if (ev.state === "open" && d.reviewState === "none") patch.reviewState = "open";
+    return { donation: await store.updateDonation(d.id, patch), changed: true };
+  }
 
   if (ev.type === "succeeded") {
     if (d.status === "succeeded") return { donation: d, changed: false };
@@ -156,6 +198,23 @@ export async function applyPaymentEvent(ev: PaymentEvent): Promise<{ donation: D
   };
 }
 
+/**
+ * Re-evaluate review signals for a confirmed gift. A weak suspicion opens a review; it never excludes
+ * anything by itself. Already-cleared gifts are not reopened by this.
+ */
+export async function assessDonation(id: string): Promise<void> {
+  const store = getStore();
+  const d = await store.getDonation(id);
+  if (!d || d.status !== "succeeded") return;
+  const [all, teams] = await Promise.all([store.listDonations(), store.listTeams()]);
+  const { signals, open } = evaluateSignals(d, all, teams);
+  const same = signals.length === d.signals.length && signals.every((x) => d.signals.includes(x));
+  const opening = open && d.reviewState === "none";
+  if (same && !opening) return;
+  await store.updateDonation(id, { signals, ...(opening ? { reviewState: "open" as const } : {}) });
+  if (opening) await audit("system", "review.opened", "donation", id, { signals });
+}
+
 // ---- reads ---------------------------------------------------------------------------------
 
 /** Demo gifts are fake. Once real payments are on they must never count toward totals or the wall. */
@@ -175,6 +234,18 @@ export async function getTotals(c: Campaign, maxAgeMs = 5000): Promise<Totals> {
 }
 export function invalidateTotals() {
   totalsCache = null;
+  boardCache = null;
+}
+
+let boardCache: { at: number; value: BoardRow[] } | null = null;
+/** Official team ranking under the charity's published rule. Same short cache as totals. */
+export async function getLeaderboard(c: Campaign, maxAgeMs = 5000): Promise<BoardRow[]> {
+  if (boardCache && Date.now() - boardCache.at < maxAgeMs) return boardCache.value;
+  const store = getStore();
+  const [donations, teams] = await Promise.all([store.listDonations(), store.listTeams()]);
+  const value = rankTeams(countable(donations), teams, c);
+  boardCache = { at: Date.now(), value };
+  return value;
 }
 
 export type WallSort = "latest" | "highest" | "liked";

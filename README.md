@@ -66,6 +66,13 @@ protection, CAPTCHA, email…) so you can see exactly what's missing before real
   dates, currencies + rates, charity details, receipt footer).
 - **Hebrew / English** with RTL; dark mode; mobile layout; keyboard-accessible.
 
+## Fraud checks, review queue, fair leaderboard
+
+Built from the Torah Ore feature inventory: review signals that open a human review (never an automatic penalty), an
+admin review queue with required written reasons, an append-only audit log, organizer/finance roles, offline gifts that
+need a second person to verify, dispute handling, and a leaderboard whose counting rule (money / gifts / distinct donors)
+is a published setting. Details and open decisions: **[docs/FRAUD-AND-LEADERBOARD.md](docs/FRAUD-AND-LEADERBOARD.md)**.
+
 ## Money rules (enforced in code + tests)
 
 - Raw card numbers never touch our forms or server. Stripe's iframe only.
@@ -86,7 +93,7 @@ Next.js 15 (App Router) · TypeScript · Stripe · Supabase (Postgres) for produ
 Local/demo uses a JSON file store; production uses Supabase (`supabase/migrations/0001_init.sql`).
 
 ```bash
-npm run check     # typecheck + 27 tests
+npm run check     # typecheck + 48 tests
 npm run build
 ```
 

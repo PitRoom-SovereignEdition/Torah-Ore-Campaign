@@ -1,7 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { defaultCampaign } from "../config";
-import type { Campaign, Donation, Matcher, Team } from "../types";
+import type { AuditEntry, Campaign, Donation, Matcher, Team } from "../types";
 import type { Store } from "./types";
 
 interface DB {
@@ -11,9 +11,10 @@ interface DB {
   matchers: Matcher[];
   likes: { donationId: string; voterHash: string }[];
   events: string[];
+  audit: AuditEntry[];
 }
 
-const empty = (): DB => ({ campaign: null, teams: [], donations: [], matchers: [], likes: [], events: [] });
+const empty = (): DB => ({ campaign: null, teams: [], donations: [], matchers: [], likes: [], events: [], audit: [] });
 
 /**
  * File-backed store for local development and demo mode. NOT for production: serverless
@@ -135,6 +136,13 @@ export class JsonStore implements Store {
       for (const l of db.likes) out[l.donationId] = (out[l.donationId] ?? 0) + 1;
       return out;
     }, false);
+  }
+
+  appendAudit(e: AuditEntry) {
+    return this.tx((db) => void db.audit.push(e));
+  }
+  listAudit(limit: number) {
+    return this.tx((db) => [...db.audit].reverse().slice(0, limit), false);
   }
 
   recordEvent(eventId: string) {

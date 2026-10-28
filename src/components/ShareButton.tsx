@@ -17,8 +17,18 @@ export function ShareButton({ title, label, copied }: { title: string; label: st
     }
   };
   return (
-    <button type="button" className="btn primary share small" onClick={go} aria-live="polite">
-      {done ? copied : `↗ ${label}`}
-    </button>
+    <div className="share" style={{ display: "flex", gap: 8 }}>
+      <button
+        type="button"
+        className="btn small"
+        style={{ background: "#25d366", color: "#06240f" }}
+        onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`${title} ${location.href}`)}`, "_blank", "noopener")}
+      >
+        WhatsApp
+      </button>
+      <button type="button" className="btn primary small" onClick={go} aria-live="polite">
+        {done ? copied : `↗ ${label}`}
+      </button>
+    </div>
   );
 }

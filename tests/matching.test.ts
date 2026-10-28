@@ -5,7 +5,8 @@ import type { Donation, Matcher } from "@/lib/types";
 const base: Donation = {
   id: "x", campaignId: "main", teamId: null, amountCents: 10000, currency: "USD", campaignAmountCents: 10000, fxRate: 1, refundedCents: 0,
   displayName: "A", anonymous: false, showOnWall: true, message: "", dedication: "", donorName: "A", donorEmail: "a@b.c", reference: "",
-  address: "", city: "", state: "", zip: "", country: "", provider: "stripe", paymentRef: null, status: "succeeded", isDemo: false,
+  address: "", city: "", state: "", zip: "", country: "", donorId: "d_x", ipHash: "", cardFingerprint: null, cardChecks: null, cardFunding: null, cardCountry: null,
+  reviewState: "none", signals: [], disputeState: "none", enteredBy: null, verifiedBy: null, provider: "stripe", paymentRef: null, status: "succeeded", isDemo: false,
   createdAt: "2026-01-02T00:00:00.000Z", updatedAt: "2026-01-02T00:00:00.000Z",
 };
 const d = (id: string, over: Partial<Donation> = {}): Donation => ({ ...base, id, paymentRef: id, ...over });

@@ -1,4 +1,4 @@
-import type { Campaign, Donation, Matcher, Team } from "../types";
+import type { AuditEntry, Campaign, Donation, Matcher, Team } from "../types";
 
 export interface Store {
   getCampaign(): Promise<Campaign>;
@@ -22,6 +22,10 @@ export interface Store {
   /** Returns true if the like was newly added. One like per (donation, voter). */
   addLike(donationId: string, voterHash: string): Promise<boolean>;
   likeCounts(): Promise<Record<string, number>>;
+
+  /** Append-only. There is deliberately no update or delete. */
+  appendAudit(e: AuditEntry): Promise<void>;
+  listAudit(limit: number): Promise<AuditEntry[]>;
 
   /** Idempotency ledger for webhooks. Returns true the first time an id is seen. */
   recordEvent(eventId: string): Promise<boolean>;

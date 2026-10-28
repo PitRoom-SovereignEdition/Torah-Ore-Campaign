@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { invalidateTotals } from "@/lib/donations";
-import { handleError, json, readJson, requireAdminApi } from "@/lib/http";
+import { audit } from "@/lib/audit";
+import { handleError, json, readJson, requireRole } from "@/lib/http";
 import { newId } from "@/lib/ids";
 import { getStore } from "@/lib/store";
 
@@ -13,15 +14,17 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
-  const denied = await requireAdminApi(req);
-  if (denied) return denied;
+  const auth = await requireRole(req, ["organizer"]);
+  if ("denied" in auth) return auth.denied;
   try {
     const i = schema.parse(await readJson(req));
     if (i.windowEnd <= i.windowStart) return json({ error: "Window end must be after start." }, 400);
     const store = getStore();
     const c = await store.getCampaign();
+    const mid = newId().slice(0, 8);
+    await audit(auth.role, "matcher.create", "matcher", mid, { name: i.name, multiplier: i.multiplier, capCents: Math.round(i.cap * 100), windowStart: i.windowStart, windowEnd: i.windowEnd });
     await store.createMatcher({
-      id: newId().slice(0, 8),
+      id: mid,
       campaignId: c.id,
       name: i.name,
       multiplier: i.multiplier,
@@ -38,10 +41,11 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  const denied = await requireAdminApi(req);
-  if (denied) return denied;
+  const auth = await requireRole(req, ["organizer"]);
+  if ("denied" in auth) return auth.denied;
   const { id } = await readJson<{ id?: string }>(req);
   if (!id) return json({ error: "Missing id" }, 400);
+  await audit(auth.role, "matcher.delete", "matcher", id);
   await getStore().deleteMatcher(id);
   invalidateTotals();
   return json({ ok: true });

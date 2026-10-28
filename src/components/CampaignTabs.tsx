@@ -5,7 +5,7 @@ import { formatMoney } from "@/lib/money";
 import type { Dict } from "@/lib/i18n";
 import { DonorWall } from "./DonorWall";
 
-export interface TeamRow { id: string; name: string; goalCents: number | null; cashCents: number; count: number }
+export interface TeamRow { id: string; name: string; goalCents: number | null; cashCents: number; gifts: number; donors: number }
 export interface MatcherRow { id: string; name: string; multiplier: number; capCents: number; matchedCents: number; windowEnd: string }
 
 interface Props {
@@ -18,9 +18,11 @@ interface Props {
   matchers: MatcherRow[];
   longDescription: string;
   storyTitle: string;
+  basis: "money" | "gifts" | "donors";
+  rules: string;
 }
 
-export function CampaignTabs({ t, locale, currency, teamId, donorCount, teams, matchers, longDescription, storyTitle }: Props) {
+export function CampaignTabs({ t, locale, currency, teamId, donorCount, teams, matchers, longDescription, storyTitle, basis, rules }: Props) {
   type Tab = "donors" | "teams" | "matchers" | "about";
   const [tab, setTab] = useState<Tab>("donors");
   const showTeams = !teamId;
@@ -55,28 +57,41 @@ export function CampaignTabs({ t, locale, currency, teamId, donorCount, teams, m
       {tab === "donors" && <DonorWall t={t} locale={locale} teamId={teamId} />}
 
       {tab === "teams" && (
-        <div className="scroll-x">
-          <table className="t">
-            <thead>
-              <tr><th>{t.teamName}</th><th>{t.progress}</th><th>{t.donations}</th><th /></tr>
-            </thead>
-            <tbody>
-              {teams.map((tm, i) => {
-                const pct = tm.goalCents ? Math.min(100, (tm.cashCents / tm.goalCents) * 100) : null;
-                return (
-                  <tr key={tm.id}>
-                    <td><span className="rank">{i + 1}</span><strong>{tm.name}</strong></td>
-                    <td>
-                      <div>{fm(tm.cashCents)}{tm.goalCents ? ` ${t.of} ${fm(tm.goalCents)}` : ""}</div>
-                      {pct !== null && <div className="bar small"><i style={{ width: `${pct}%` }} /></div>}
-                    </td>
-                    <td>{tm.count}</td>
-                    <td><Link href={`/t/${tm.id}`}>{t.viewTeam}</Link></td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div>
+          <div className="scroll-x">
+            <table className="t">
+              <thead>
+                <tr>
+                  <th>{t.teamName}</th>
+                  <th className={basis === "money" ? "official" : ""}>{t.raised}{basis === "money" ? " ★" : ""}</th>
+                  <th className={basis === "gifts" ? "official" : ""}>{t.donations}{basis === "gifts" ? " ★" : ""}</th>
+                  <th className={basis === "donors" ? "official" : ""}>{t.statDonors}{basis === "donors" ? " ★" : ""}</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {teams.map((tm, i) => {
+                  const pct = tm.goalCents ? Math.min(100, (tm.cashCents / tm.goalCents) * 100) : null;
+                  return (
+                    <tr key={tm.id}>
+                      <td><span className="rank">{i + 1}</span><strong>{tm.name}</strong></td>
+                      <td className={basis === "money" ? "official" : ""}>
+                        <div>{fm(tm.cashCents)}{tm.goalCents ? ` ${t.of} ${fm(tm.goalCents)}` : ""}</div>
+                        {pct !== null && <div className="bar small"><i style={{ width: `${pct}%` }} /></div>}
+                      </td>
+                      <td className={basis === "gifts" ? "official" : ""}>{tm.gifts}</td>
+                      <td className={basis === "donors" ? "official" : ""}>{tm.donors}</td>
+                      <td><Link href={`/t/${tm.id}`}>{t.viewTeam}</Link></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div className="card rules" style={{ marginTop: 16 }}>
+            <strong>{t.rulesTitle}</strong>
+            <p style={{ margin: "6px 0 0" }}>{rules}</p>
+          </div>
           <p className="center" style={{ marginTop: 16 }}>
             <Link href="/team-signup" className="btn secondary">{t.joinTeam}</Link>
           </p>

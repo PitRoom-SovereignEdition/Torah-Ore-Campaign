@@ -100,7 +100,7 @@ export function OfflineForm({ currencies, teams }: { currencies: string[]; teams
       <div><label>Dedication</label><input name="dedication" maxLength={200} /></div>
       <label className="check"><input type="checkbox" name="anonymous" />Anonymous</label>
       <label className="check"><input type="checkbox" name="showOnWall" defaultChecked />Show on public wall</label>
-      {err && <div className="err">{err}</div>}{ok && <div className="ok">Recorded.</div>}
+      {err && <div className="err">{err}</div>}{ok && <div className="ok">Recorded as pending. A second person (the other role) must verify it before it counts.</div>}
       <button className="btn">Record gift</button>
     </form>
   );
@@ -143,6 +143,8 @@ export function CampaignForm({ c }: { c: Campaign }) {
       endsAt: s(f, "endsAt") ? new Date(s(f, "endsAt")).toISOString() : null,
       videoUrl: s(f, "videoUrl"), charityName: s(f, "charityName"), charityRegNo: s(f, "charityRegNo"),
       statementDescriptor: s(f, "statementDescriptor"), receiptFooter: s(f, "receiptFooter"), termsUrl: s(f, "termsUrl"), contactEmail: s(f, "contactEmail"),
+      leaderboardBasis: s(f, "leaderboardBasis"), selfDonation: s(f, "selfDonation"),
+      cutoffAt: s(f, "cutoffAt") ? new Date(s(f, "cutoffAt")).toISOString() : null, leaderboardRules: s(f, "leaderboardRules"),
     };
   }, false);
   const local = (iso: string | null) => (iso ? new Date(new Date(iso).getTime() - new Date(iso).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : "");
@@ -174,9 +176,65 @@ export function CampaignForm({ c }: { c: Campaign }) {
         <div><label>Terms URL</label><input name="termsUrl" defaultValue={c.termsUrl} /></div>
         <div><label>Contact email</label><input name="contactEmail" defaultValue={c.contactEmail} /></div>
       </div>
+      <div className="fieldset-title">Leaderboard rules (published on the site)</div>
+      <div className="grid2">
+        <div><label>Who wins? (decide before launch)</label><select name="leaderboardBasis" defaultValue={c.leaderboardBasis}><option value="money">Most money raised</option><option value="gifts">Most gifts</option><option value="donors">Most distinct donors</option></select></div>
+        <div><label>Fundraiser&apos;s own gift to their own page</label><select name="selfDonation" defaultValue={c.selfDonation}><option value="count">Counts toward their ranking</option><option value="exclude">Does not count</option></select></div>
+        <div><label>Ranking cutoff (provisional until then)</label><input name="cutoffAt" type="datetime-local" defaultValue={local(c.cutoffAt)} /></div>
+      </div>
+      <div><label>Rules text (blank = generated from the settings above)</label><textarea name="leaderboardRules" rows={4} defaultValue={c.leaderboardRules} /></div>
       <div><label>Receipt footer (wording supplied by the yeshiva&apos;s advisers)</label><textarea name="receiptFooter" rows={3} defaultValue={c.receiptFooter} /></div>
       {err && <div className="err">{err}</div>}{ok && <div className="ok">Saved.</div>}
       <button className="btn">Save campaign</button>
     </form>
+  );
+}
+
+/** Review decision with a mandatory written reason. Everything lands in the audit log. */
+export function ReviewActions({ id, state, canAct }: { id: string; state: string; canAct: boolean }) {
+  const router = useRouter();
+  const [reason, setReason] = useState("");
+  const [busy, setBusy] = useState(false);
+  if (!canAct) return null;
+  const go = async (action: string) => {
+    if (reason.trim().length < 3) { alert("Write a short reason first. It is recorded in the audit log."); return; }
+    setBusy(true);
+    try { await post("/api/admin/review", { id, action, reason }); setReason(""); router.refresh(); }
+    catch (x) { alert((x as Error).message); }
+    finally { setBusy(false); }
+  };
+  return (
+    <div className="stack" style={{ gap: 8, minWidth: 220 }}>
+      <input aria-label="Reason" placeholder="Reason (required, logged)" value={reason} onChange={(e) => setReason(e.target.value)} />
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+        {state === "excluded" ? (
+          <button className="btn small" disabled={busy} onClick={() => go("restore")}>Restore to ranking</button>
+        ) : (
+          <>
+            <button className="btn secondary small" disabled={busy} onClick={() => go("clear")}>Clear</button>
+            <button className="btn small" disabled={busy} onClick={() => go("exclude")}>Set aside from ranking</button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function VerifyActions({ id }: { id: string }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const go = async (action: "verify" | "reject") => {
+    const reason = action === "reject" ? window.prompt("Reason for rejecting this offline gift?") ?? "" : "";
+    if (action === "reject" && !reason) return;
+    setBusy(true);
+    try { await post("/api/admin/offline/verify", { id, action, reason }); router.refresh(); }
+    catch (x) { alert((x as Error).message); }
+    finally { setBusy(false); }
+  };
+  return (
+    <div style={{ display: "flex", gap: 6 }}>
+      <button className="btn small" disabled={busy} onClick={() => go("verify")}>Verify</button>
+      <button className="btn secondary small" disabled={busy} onClick={() => go("reject")}>Reject</button>
+    </div>
   );
 }

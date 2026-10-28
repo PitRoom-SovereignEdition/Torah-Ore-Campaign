@@ -4,12 +4,14 @@ import { buildPendingDonation, donateSchema, DonationError } from "@/lib/donatio
 import { handleError, json, readJson } from "@/lib/http";
 import { getProvider } from "@/lib/payments";
 import { clientIp, rateLimit } from "@/lib/ratelimit";
+import { sha256 } from "@/lib/ids";
 import { getStore } from "@/lib/store";
 
 export async function POST(req: Request) {
   try {
     const ip = clientIp(req);
-    if (!rateLimit(`donate:${ip}`, 10, 10 * 60_000)) throw new DonationError("Too many attempts. Please wait a few minutes.", 429);
+    // Deliberately loose per-IP limit: a dorm, office or shared Wi-Fi has many real donors behind one IP.
+    if (!rateLimit(`donate:${ip}`, 30, 10 * 60_000)) throw new DonationError("Too many attempts. Please wait a few minutes.", 429);
 
     const mode = paymentsMode();
     const provider = getProvider();
@@ -20,7 +22,8 @@ export async function POST(req: Request) {
 
     const store = getStore();
     const campaign = await store.getCampaign();
-    const donation = await buildPendingDonation(campaign, input);
+    const ipHash = sha256(`${process.env.ADMIN_SESSION_SECRET ?? "ip"}:${ip}`).slice(0, 24);
+    const donation = await buildPendingDonation(campaign, input, ipHash);
     await store.createDonation(donation);
 
     try {

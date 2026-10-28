@@ -9,7 +9,8 @@ import { ShareButton } from "./ShareButton";
 import { Ticker } from "./Ticker";
 import { captchaProvider } from "@/lib/captcha";
 import { limits, paymentsMode } from "@/lib/config";
-import { campaignOpen, getTotals } from "@/lib/donations";
+import { campaignOpen, getLeaderboard, getTotals } from "@/lib/donations";
+import { rulesText } from "@/lib/leaderboard";
 import { fmt, getDict } from "@/lib/i18n";
 import { formatMoney } from "@/lib/money";
 import { getStore } from "@/lib/store";
@@ -33,7 +34,7 @@ export async function CampaignView({ team }: { team: Team | null }) {
   const locale = lang === "he" ? "he-IL" : "en-US";
   const store = getStore();
   const c = await store.getCampaign();
-  const [totals, teams] = await Promise.all([getTotals(c), store.listTeams()]);
+  const [totals, teams, board] = await Promise.all([getTotals(c), store.listTeams(), getLeaderboard(c)]);
   const fm = (x: number) => formatMoney(x, c.currency, locale, true);
 
   const scoped = team ? (totals.teamTotals[team.id] ?? { cashCents: 0, count: 0 }) : null;
@@ -42,9 +43,7 @@ export async function CampaignView({ team }: { team: Team | null }) {
     : { cashCents: totals.cashCents, matchedCents: totals.matchedCents, donorCount: totals.donorCount };
 
   const approved = teams.filter((x) => x.approved);
-  const teamRows: TeamRow[] = approved
-    .map((x) => ({ id: x.id, name: x.name, goalCents: x.goalCents, cashCents: totals.teamTotals[x.id]?.cashCents ?? 0, count: totals.teamTotals[x.id]?.count ?? 0 }))
-    .sort((a, b) => b.cashCents - a.cashCents);
+  const teamRows: TeamRow[] = board.map((r) => ({ id: r.teamId, name: r.name, goalCents: r.goalCents, cashCents: r.cashCents, gifts: r.gifts, donors: r.donors }));
   const matcherRows: MatcherRow[] = totals.matchers.map((m) => ({
     id: m.matcher.id, name: m.matcher.name, multiplier: m.matcher.multiplier, capCents: m.matcher.capCents,
     matchedCents: m.matchedCents, windowEnd: m.matcher.windowEnd,
@@ -133,6 +132,8 @@ export async function CampaignView({ team }: { team: Team | null }) {
             matchers={matcherRows}
             longDescription={c.longDescription}
             storyTitle={t.storyTitle}
+            basis={c.leaderboardBasis}
+            rules={rulesText(c, locale)}
           />
         </section>
       </div>
