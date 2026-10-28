@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { verifyCaptcha } from "@/lib/captcha";
-import { DonationError } from "@/lib/donations";
+import { DonationError, invalidateTotals } from "@/lib/donations";
 import { handleError, json, readJson } from "@/lib/http";
 import { newId, nowIso } from "@/lib/ids";
+import { paymentsMode } from "@/lib/config";
 import { clientIp, rateLimit } from "@/lib/ratelimit";
 import { getStore } from "@/lib/store";
 
@@ -33,9 +34,12 @@ export async function POST(req: Request) {
       ownerName: input.name,
       ownerEmail: input.email,
       ownerPhone: input.phone,
-      approved: false, // an admin approves teams before they get a public page
+      // Real modes: an organizer approves teams before they get a public page. Demo mode (no real money):
+      // go live immediately so the sign-up form visibly works without an admin login.
+      approved: paymentsMode() === "demo",
       createdAt: nowIso(),
     });
+    invalidateTotals();
     return json({ ok: true });
   } catch (e) {
     return handleError(e);

@@ -95,6 +95,7 @@ const en = {
   daysLeft: "Days left",
   goalReached: "Goal reached!",
   raised: "Raised",
+  noTeams: "No teams yet. Be the first to start one.",
   rulesTitle: "How the leaderboard works",
 };
 
@@ -191,6 +192,7 @@ const he: typeof en = {
   daysLeft: "ימים לסיום",
   goalReached: "היעד הושג!",
   raised: "גויס",
+  noTeams: "עדיין אין קבוצות. היו הראשונים להקים אחת.",
   rulesTitle: "איך פועלת טבלת הדירוג",
 };
 

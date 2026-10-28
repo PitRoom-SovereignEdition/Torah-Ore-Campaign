@@ -103,7 +103,7 @@ export async function CampaignView({ team }: { team: Team | null }) {
             <div className="stat"><b>{initial.donorCount.toLocaleString(locale)}</b><span>{t.statDonors}</span></div>
             <div className="stat"><b>{approved.length}</b><span>{t.statTeams}</span></div>
             <div className="stat"><b>{fm(Math.max(0, goalCents - total))}</b><span>{t.statToGo}</span></div>
-            <div className="stat"><b>{matchLeft > 0 ? fm(matchLeft) : "—"}</b><span>{t.statMatchLeft}</span></div>
+            {matchLeft > 0 && <div className="stat"><b>{fm(matchLeft)}</b><span>{t.statMatchLeft}</span></div>}
           </div>
         )}
 

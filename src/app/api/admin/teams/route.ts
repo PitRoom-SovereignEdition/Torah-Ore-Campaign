@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { audit } from "@/lib/audit";
+import { invalidateTotals } from "@/lib/donations";
 import { handleError, json, readJson, requireRole } from "@/lib/http";
 import { getStore } from "@/lib/store";
 
@@ -16,6 +17,7 @@ export async function POST(req: Request) {
     const { id, ...patch } = schema.parse(await readJson(req));
     await getStore().updateTeam(id, patch);
     await audit(auth.role, "team.update", "team", id, patch);
+    invalidateTotals();
     return json({ ok: true });
   } catch (e) {
     return handleError(e);

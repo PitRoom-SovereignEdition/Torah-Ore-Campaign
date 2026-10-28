@@ -9,7 +9,6 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "seed": "tsx scripts/seed.ts",
     "check": "npm run typecheck && npm test"
   },
   "dependencies": {

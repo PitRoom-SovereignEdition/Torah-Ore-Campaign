@@ -12,10 +12,10 @@ platform). Artwork, copy and styling are original. This is not a copy of anyone'
 1. Vercel → **Add New → Project** → import this repo (pick the branch with the code).
 2. Click **Deploy**. Nothing else.
 
-With nothing configured on Vercel the site runs in **demo mode** with an in-memory store pre-filled with clearly
-fake donors, so you get a real public URL to judge the look, flow and Hebrew/mobile layouts. No card fields, no
-money. Note the demo data lives in server memory, so it resets when Vercel recycles the instance and can differ
-between instances. That is fine for judging, and not for real use. To try `/admin`, add `ADMIN_PASSWORD` and
+With nothing configured on Vercel the site runs in **demo mode** with an empty in-memory store: the goal bar starts at
+$0 and there are no donors, teams or matchers until someone adds them. Donate uses a fake checkout (no card fields, no
+money). Gifts made in demo mode are test data and are never counted once real payments are on. Note the data lives in
+server memory, so it resets when Vercel recycles the instance and can differ between instances. That is fine for judging, and not for real use. To try `/admin`, add `ADMIN_PASSWORD` and
 `ADMIN_SESSION_SECRET` in Vercel → Settings → Environment Variables and redeploy.
 
 When it's worth it, follow `docs/GO-LIVE.md` to add Supabase (real storage) and Stripe (test keys, then live).
@@ -26,7 +26,6 @@ When it's worth it, follow `docs/GO-LIVE.md` to add Supabase (real storage) and 
 npm install
 cp .env.example .env.local        # PAYMENTS_MODE=demo is the default in the example
 # in .env.local also set:  ADMIN_PASSWORD=choose-something  and  ADMIN_SESSION_SECRET=$(openssl rand -hex 24)
-npm run seed                      # optional: clearly-fake demo donors (local JSON store only)
 npm run dev                       # http://localhost:3000   admin: /admin
 ```
 
@@ -114,8 +113,3 @@ npm run build
 - The Stripe path is unit-tested (signed webhooks, replays, tampering, refunds) but has **not** been exercised
   against Stripe's live servers from this repo. Run the Stripe test-mode checklist in `docs/GO-LIVE.md` first.
 
-## Previewing without hosting anything
-
-`preview/index.html` is a single self-contained file (rebuilt from the real app CSS and photos by `python3 scripts/build-preview.py`): a clickable demo of the donor site and admin panel. It runs entirely in the browser on demo data, with no server and no payments. As an Artifact it also saves gifts, likes and team sign-ups to a shared store.
-data (no server, no payments). Open it in any browser, or publish it anywhere that serves static files.
-To see the real app instead, follow "Try it in 2 minutes" above.

@@ -57,6 +57,12 @@ export function CampaignTabs({ t, locale, currency, teamId, donorCount, teams, m
       {tab === "donors" && <DonorWall t={t} locale={locale} teamId={teamId} />}
 
       {tab === "teams" && (
+        teams.length === 0 ? (
+          <div className="card center">
+            <p style={{ margin: "0 0 14px" }}>{t.noTeams}</p>
+            <Link href="/team-signup" className="btn">{t.joinTeam}</Link>
+          </div>
+        ) : (
         <div>
           <div className="scroll-x">
             <table className="t">
@@ -96,6 +102,7 @@ export function CampaignTabs({ t, locale, currency, teamId, donorCount, teams, m
             <Link href="/team-signup" className="btn secondary">{t.joinTeam}</Link>
           </p>
         </div>
+        )
       )}
 
       {tab === "matchers" && (
