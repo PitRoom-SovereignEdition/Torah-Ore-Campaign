@@ -1,0 +1,165 @@
+<title>Yeshiva Campaign Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/*__CSS__*/
+body{padding-bottom:0}
+.pv{background:#0a1a4f;color:#cfe0ff;font-size:13px;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between;padding:7px 16px}
+.pv b{color:#fff;letter-spacing:.06em}
+.seg{display:flex;gap:4px}.seg button{border:1px solid rgba(255,255,255,.4);background:transparent;color:#fff;border-radius:999px;padding:3px 12px;cursor:pointer;font:inherit;font-size:13px}
+.seg button[aria-pressed="true"]{background:#fff;color:#0a1a4f}
+.nav{top:env(safe-area-inset-top,0px)}
+.flash{position:fixed;inset-inline:0;top:calc(14px + env(safe-area-inset-top,0px));display:flex;justify-content:center;z-index:60;pointer-events:none}
+.flash div{background:var(--ink);color:var(--card);padding:10px 18px;border-radius:999px;font-weight:700;box-shadow:var(--shadow);max-width:92vw}
+.hero-bg .carousel img{position:absolute}
+.tag{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.linkbtn{background:none;border:0;color:var(--accent-text);text-decoration:underline;cursor:pointer;padding:0;font:inherit;font-size:13px}
+.footer{margin-top:60px}
+</style>
+
+<div class="pv"><span><b>PREVIEW</b> · demo data and demo checkout. Gifts, likes and team sign-ups you add are saved and shared with everyone who opens this page.</span>
+<div class="seg" role="group" aria-label="Preview view"><button type="button" id="v-site" aria-pressed="true">Donor site</button><button type="button" id="v-admin" aria-pressed="false">Admin panel</button></div></div>
+<div id="app"></div>
+<div class="flash" id="flash" hidden><div id="flashmsg"></div></div>
+<dialog id="dlg" aria-labelledby="dt"><div class="modal"><div class="modal-side" aria-hidden="true"><img id="dimg" alt=""><div class="in"><h3 id="dside"></h3><p id="dsub"></p><p id="dsec"></p></div></div><div class="modal-main"><div class="modal-h"><h2 id="dt"></h2><button class="x" type="button" id="dx" aria-label="Close">×</button></div><div class="modal-b" id="dbody"></div></div></div></dialog>
+
+<script>
+(function(){
+"use strict";
+var PH=["__IMG1__","__IMG2__"];
+var T={en:{donate:"Donate",giveNow:"Give now",raisedOf:"RAISED OF {g} GOAL",bonus:"BONUS GOAL",orig:"ORIGINAL GOAL",matched:"matched by our generous partners",donors:"Donors",teams:"Teams",matchers:"Matchers",about:"About",search:"Search donors",latest:"Latest",highest:"Highest",liked:"Most liked",more:"More…",with:"With",none:"No donors match.",anon:"Anonymous",team:"Team",progress:"Progress",donations:"Donations",view:"View page",join:"Join a team",share:"Share",demo:"DEMO MODE: no real money is charged and no card details are collected.",amount:"Amount",currency:"Currency",details:"Your details",name:"Name",email:"Email",msg:"Message for the donor wall (optional)",ded:"In honor / memory of (optional)",anonl:"Give anonymously (hide my name)",wall:"Show my gift on the public donor wall",terms:"I agree to the terms and conditions",pay:"Pay now",sim:"Simulate successful payment (demo)",thanks:"Thank you!",thanks2:"Your gift is on the wall and in the totals.",back:"Back to the campaign",of:"of",dn:"{n} donations",addr:"Address",city:"City",country:"Country",secure:"Secure payment",checkout:"Checkout",days:"Days",hours:"Hours",mins:"Min",secs:"Sec",sDonors:"Donors",sTeams:"Teams",sToGo:"Left to goal",sMatch:"Matching left",levels:"Choose your gift",levelsSub:"Every amount counts. Pick one or enter your own.",becomes:"Your {a} becomes {b} with matching",story:"Why we're raising",tsTitle:"Team sign up",tsIntro:"If you would like to join our teams, please fill your details below:",tsName:"Team / fundraiser name",phone:"Phone number",tsGoal:"Raising goal (optional)",tsMsg:"Message to show on your page (optional)",submit:"Submit",tsThanks:"Thank you! We will be in touch with you soon with more information about our campaign.",stmt:"Your statement will show: YESHIVA",copied:"Link copied"},
+he:{donate:"תרמו",giveNow:"תרמו עכשיו",raisedOf:"גויסו מתוך יעד של {g}",bonus:"יעד בונוס",orig:"יעד מקורי",matched:"הותאם על ידי שותפינו הנדיבים",donors:"תורמים",teams:"קבוצות",matchers:"מתאימים",about:"אודות",search:"חיפוש תורמים",latest:"אחרונים",highest:"הגבוהים ביותר",liked:"הכי אהובים",more:"עוד…",with:"עם",none:"לא נמצאו תורמים.",anon:"אנונימי",team:"קבוצה",progress:"התקדמות",donations:"תרומות",view:"לעמוד הקבוצה",join:"הצטרפו לקבוצה",share:"שיתוף",demo:"מצב הדגמה: לא מתבצע חיוב אמיתי ולא נאספים פרטי כרטיס.",amount:"סכום",currency:"מטבע",details:"הפרטים שלכם",name:"שם",email:"אימייל",msg:"הודעה לקיר התורמים (אופציונלי)",ded:"לכבוד / לזכר (אופציונלי)",anonl:"תרומה אנונימית (הסתר את שמי)",wall:"הצג את התרומה בקיר התורמים",terms:"אני מסכים/ה לתנאי השימוש",pay:"שלמו עכשיו",sim:"דמה תשלום מוצלח (הדגמה)",thanks:"תודה רבה!",thanks2:"התרומה מופיעה בקיר ובסכומים.",back:"חזרה לקמפיין",of:"מתוך",dn:"{n} תרומות",addr:"כתובת",city:"עיר",country:"ארץ",secure:"תשלום מאובטח",checkout:"תשלום",days:"ימים",hours:"שעות",mins:"דק׳",secs:"שנ׳",sDonors:"תורמים",sTeams:"קבוצות",sToGo:"נותר ליעד",sMatch:"התאמה שנותרה",levels:"בחרו את התרומה",levelsSub:"כל סכום חשוב. בחרו או הזינו סכום משלכם.",becomes:"התרומה שלכם, {a}, הופכת ל-{b} עם התאמה",story:"למה אנחנו מגייסים",tsTitle:"הרשמה לקבוצה",tsIntro:"אם תרצו להצטרף לקבוצות שלנו, מלאו את הפרטים:",tsName:"שם הקבוצה / המגייס",phone:"טלפון",tsGoal:"יעד גיוס (אופציונלי)",tsMsg:"הודעה שתוצג בעמוד שלכם (אופציונלי)",submit:"שליחה",tsThanks:"תודה! ניצור איתכם קשר בקרוב עם מידע נוסף על הקמפיין.",stmt:"בדף החשבון יופיע: YESHIVA",copied:"הקישור הועתק"}};
+var CAMP={title:"Our Yeshiva | Above & Beyond",sub:"Annual Campaign",desc:"Help us strengthen Torah learning for the next generation. Every gift, big or small, goes straight to our talmidim, rabbeim and facilities.",about:"This is placeholder campaign text. In the real site you edit it from the admin panel.\n\nTeams of supporters raise funds from their own networks, and generous matchers multiply every gift while their pledges last."};
+var ENDS=Date.parse("2026-11-30T23:59:59Z"),GOAL=360000,BONUS=500000,BASE_CASH=146300,BASE_DONORS=2480,CAP=100000;
+var FX={USD:1,GBP:1.3,EUR:1.1,ILS:0.27};
+var BASET=[{id:"parents",name:"Parents Committee",goal:60000,cash:31200,n:212},{id:"alumni",name:"Alumni Network",goal:45000,cash:18400,n:131},{id:"class",name:"Class of 5785",goal:30000,cash:9650,n:77},{id:"rebbeim",name:"Rebbeim & Staff",goal:25000,cash:12100,n:96}];
+var NAMES=["Moshe Cohen","Sarah Levi","Yossi Katz","Rivka Stern","David Friedman","Esther Gold","Avi Rosen","Leah Klein","Binyomin Weiss","Chana Adler","Shlomo Berger","Miriam Fox","Yaakov Brenner","Devorah Shapiro"];
+var MSGS=["Hatzlacha rabbah!","For the talmidim.","","Keep up the amazing work!","In honor of our rebbi.","","Proud alumnus.","May we share only simchos."];
+var AMTS=[18,36,100,180,360,1000,54,250,500,72];
+var LEVELS=[18,36,100,180,360,1000];
+var S={lang:"en",view:"site",tab:"donors",team:null,sort:"latest",q:"",shown:12,slide:0,gifts:[],localGifts:[],likeDocs:[],localLikes:{},teamDocs:[],localTeams:[],uid:null,db:null,canEdit:false};
+var SEED=(function(){var t=Date.now(),l=[],i;for(i=0;i<48;i++){l.push({id:"s"+i,name:NAMES[i%NAMES.length],anon:i%8===0,amt:AMTS[(i*7)%AMTS.length],cur:"USD",msg:MSGS[i%MSGS.length],ded:i%9===0?"In memory of a dear grandfather":"",team:i%4===0?null:BASET[i%4].id,likes:(i*5)%9,at:t-(i+1)*47*60000,show:true,seed:true})}return l})();
+var $=function(s){return document.querySelector(s)};
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function t(k){return T[S.lang][k]||T.en[k]||k}
+function loc(){return S.lang==="he"?"he-IL":"en-US"}
+function money(v,c){c=c||"USD";var w=Math.round(v*100)%100===0;return new Intl.NumberFormat(loc(),{style:"currency",currency:c,minimumFractionDigits:w?0:2,maximumFractionDigits:w?0:2}).format(v)}
+function initials(n){var p=String(n).trim().split(/\s+/);return ((p[0]||"?")[0]+(p.length>1?p[p.length-1][0]:"")).toUpperCase()}
+function ago(ms){var m=Math.max(0,Math.round((Date.now()-ms)/60000));if(m<1)return S.lang==="he"?"הרגע":"just now";if(m<60)return m+(S.lang==="he"?" דק׳":" min ago");var h=Math.round(m/60);if(h<48)return h+(S.lang==="he"?" שע׳":" h ago");return Math.round(h/24)+(S.lang==="he"?" ימים":" d ago")}
+function flash(m){$("#flashmsg").textContent=m;$("#flash").hidden=false;clearTimeout(flash.t);flash.t=setTimeout(function(){$("#flash").hidden=true},3200)}
+
+// ---- data: seeded base + shared db docs + optimistic local copies
+function allGifts(){var ids={};S.gifts.forEach(function(g){ids[g.id]=1});return S.gifts.concat(S.localGifts.filter(function(g){return !ids[g.id]}))}
+function likeCount(id){var n=0;S.likeDocs.forEach(function(l){if(l.g===id)n++});return n+(S.localLikes[id]&&!S.likeDocs.some(function(l){return l.g===id&&l.uid===S.uid})?1:0)}
+function liked(id){return !!S.localLikes[id]||S.likeDocs.some(function(l){return l.g===id&&S.uid&&l.uid===S.uid})}
+function wallList(){var all=SEED.map(function(d){return Object.assign({},d,{likes:d.likes+likeCount(d.id)})}).concat(allGifts().map(function(g){return Object.assign({},g,{team:g.team||null,likes:likeCount(g.id)})}));
+ var q=S.q.trim().toLowerCase();
+ all=all.filter(function(d){return d.show!==false&&(!S.team||d.team===S.team)&&(!q||(d.anon?"anonymous":d.name).toLowerCase().indexOf(q)>-1||(d.msg||"").toLowerCase().indexOf(q)>-1)});
+ var by={latest:function(a,b){return b.at-a.at},highest:function(a,b){return b.amt*FX[b.cur]-a.amt*FX[a.cur]||b.at-a.at},liked:function(a,b){return b.likes-a.likes||b.at-a.at}};
+ return all.sort(by[S.sort])}
+function cash(){return BASE_CASH+allGifts().reduce(function(s,g){return s+g.amt*(FX[g.cur]||1)},0)}
+function matched(){return Math.min(CAP,cash())}
+function donorN(){return BASE_DONORS+allGifts().length}
+function teamsAll(){return BASET.map(function(x){var gs=allGifts().filter(function(g){return g.team===x.id});return {id:x.id,name:x.name,goal:x.goal,cash:x.cash+gs.reduce(function(s,g){return s+g.amt*(FX[g.cur]||1)},0),n:x.n+gs.length}})
+ .concat(teamDocsAll().filter(function(d){return d.approved}).map(function(d){var gs=allGifts().filter(function(g){return g.team===d.id});return {id:d.id,name:d.name,goal:d.goal||0,cash:gs.reduce(function(s,g){return s+g.amt*(FX[g.cur]||1)},0),n:gs.length,msg:d.msg}}))}
+function teamDocsAll(){var ids={};S.teamDocs.forEach(function(d){ids[d.id]=1});return S.teamDocs.concat(S.localTeams.filter(function(d){return !ids[d.id]}))}
+function curTeam(){return S.team?teamsAll().filter(function(x){return x.id===S.team})[0]||null:null}
+
+// ---- views
+function carouselHTML(){return '<div class="carousel" id="car" role="group" aria-roledescription="carousel" aria-label="Campaign photos">'+PH.map(function(u,i){return '<img src="'+u+'" alt="" class="'+(i===S.slide?"on":"")+'">'}).join("")+'<div class="dots">'+PH.map(function(_,i){return '<button type="button" data-slide="'+i+'" aria-label="Photo '+(i+1)+'" aria-current="'+(i===S.slide)+'"></button>'}).join("")+'</div></div>'}
+function setSlide(n){S.slide=n;[].forEach.call(document.querySelectorAll("#car img"),function(im,i){im.classList.toggle("on",i===n)});[].forEach.call(document.querySelectorAll("#car .dots button"),function(b,i){b.setAttribute("aria-current",i===n)})}
+function countdownHTML(){var l=Math.max(0,ENDS-Date.now()),p=[Math.floor(l/864e5),Math.floor(l/36e5)%24,Math.floor(l/6e4)%60,Math.floor(l/1e3)%60],lb=[t("days"),t("hours"),t("mins"),t("secs")];return p.map(function(v,i){return '<div class="u"><b>'+String(v).padStart(2,"0")+'</b><span>'+lb[i]+'</span></div>'}).join("")}
+function goalHTML(){var tm=curTeam(),c=tm?tm.cash:cash(),m=tm?0:matched(),tot=c+m,goal=tm?(tm.goal||GOAL):GOAL,passed=!tm&&tot>=GOAL,target=passed?BONUS:goal,cnt=tm?tm.n:donorN();
+ return (passed?'<div class="trophy">🏆 '+t("bonus")+' · '+t("orig")+': '+money(GOAL)+' ✓</div>':'')+'<div><div class="big" aria-live="polite">'+money(tot)+'</div><div class="label" style="margin-top:6px">'+t("raisedOf").replace("{g}",money(target))+'</div></div>'+
+ '<div class="bar" role="progressbar" aria-valuenow="'+Math.round(tot/goal*100)+'" aria-valuemin="0" aria-valuemax="100"><i class="matched" style="width:'+Math.min(100,tot/target*100)+'%"></i><i style="width:'+Math.min(100,c/target*100)+'%"></i></div><div class="pct"><span>'+Math.round(tot/goal*100)+'%</span><span>'+t("dn").replace("{n}",cnt.toLocaleString(loc()))+'</span></div>'+
+ (m>0?'<div class="mrow"><span aria-hidden="true">✨</span><span><b>'+money(m)+'</b> '+t("matched")+'</span></div>':'')+'<div class="card-actions"><button class="btn lg block" data-donate type="button">'+t("donate")+'</button><div class="secure">🔒 '+t("secure")+' · Stripe</div></div>'}
+function tickerHTML(){var l=allGifts().concat(SEED).filter(function(d){return d.show!==false}).sort(function(a,b){return b.at-a.at}).slice(0,10);
+ var row=function(x){return l.map(function(d){return '<span><span class="dot" aria-hidden="true"></span><b>'+esc(d.anon?t("anon"):d.name)+'</b> <span class="amt">'+money(d.amt,d.cur)+'</span></span>'}).join("")};return '<div class="track">'+row()+row()+'</div>'}
+function donorCard(d){var tm=teamsAll().filter(function(x){return x.id===d.team})[0],lk=liked(d.id);
+ return '<article class="card donor"><div class="avatar'+(d.anon?" anon":"")+'" aria-hidden="true">'+(d.anon?"?":esc(initials(d.name)))+'</div><div><div class="top"><div class="who">'+esc(d.anon?t("anon"):d.name)+'</div><div class="amt">'+money(d.amt,d.cur)+'</div></div>'+
+ (tm?'<div class="with">'+t("with")+' <button type="button" class="linkbtn" data-team="'+esc(tm.id)+'">'+esc(tm.name)+'</button></div>':'')+(d.msg?'<p class="msg">'+esc(d.msg)+'</p>':'')+(d.ded?'<div class="ded">🕯️ '+esc(d.ded)+'</div>':'')+
+ '<div class="foot"><span>'+ago(d.at)+'</span><button type="button" class="like" data-like="'+esc(d.id)+'" aria-pressed="'+lk+'" aria-label="Like">♥ '+d.likes+'</button></div></div></article>'}
+function renderWall(){var box=$("#wallbox");if(!box)return;var l=wallList();box.innerHTML=l.length?'<div class="wall">'+l.slice(0,S.shown).map(donorCard).join("")+'</div>':'<p class="empty">'+t("none")+'</p>';var mb=$("#morebtn");if(mb)mb.hidden=l.length<=S.shown}
+function panelHTML(){var tm=curTeam();
+ if(S.tab==="donors")return '<div class="toolbar"><input type="search" id="q" value="'+esc(S.q)+'" placeholder="'+t("search")+'" aria-label="'+t("search")+'"><div class="sorts" role="group">'+[["latest",t("latest")],["highest",t("highest")],["liked",t("liked")]].map(function(x){return '<button type="button" data-sort="'+x[0]+'" aria-pressed="'+(S.sort===x[0])+'">'+x[1]+'</button>'}).join("")+'</div></div><div id="wallbox"></div><p class="center" style="margin-top:18px"><button class="btn secondary" type="button" id="morebtn">'+t("more")+'</button></p>';
+ if(S.tab==="teams")return '<div class="scroll-x"><table class="t"><thead><tr><th>'+t("team")+'</th><th>'+t("progress")+'</th><th>'+t("donations")+'</th><th></th></tr></thead><tbody>'+teamsAll().sort(function(a,b){return b.cash-a.cash}).map(function(x,i){return '<tr><td><span class="rank">'+(i+1)+'</span><strong>'+esc(x.name)+'</strong></td><td><div>'+money(x.cash)+(x.goal?' '+t("of")+' '+money(x.goal):'')+'</div>'+(x.goal?'<div class="bar small"><i style="width:'+Math.min(100,x.cash/x.goal*100)+'%"></i></div>':'')+'</td><td>'+x.n+'</td><td><button class="linkbtn" type="button" data-team="'+esc(x.id)+'">'+t("view")+'</button></td></tr>'}).join("")+'</tbody></table></div><p class="center" style="margin-top:16px"><button class="btn secondary" type="button" data-join>'+t("join")+'</button></p>';
+ if(S.tab==="matchers")return '<div class="card"><strong>Anonymous Matching Fund</strong> · 1:1<div class="bar small" style="margin:10px 0"><i class="matched" style="width:'+Math.min(100,matched()/CAP*100)+'%"></i></div><span class="note">'+money(matched())+' '+t("of")+' '+money(CAP)+'</span></div>';
+ return '<div class="card story"><div class="prose"><h2 style="margin-bottom:14px">'+t("story")+'</h2>'+CAMP.about.split("\n\n").map(function(p){return '<p>'+esc(p)+'</p>'}).join("")+'</div></div>'}
+function tabsHTML(){var tm=S.team,tabs=[["donors",t("donors"),(tm?curTeam()&&curTeam().n:donorN()).toLocaleString(loc())]];if(!tm){tabs.push(["teams",t("teams"),teamsAll().length]);tabs.push(["matchers",t("matchers"),1])}tabs.push(["about",t("about"),""]);
+ return '<div class="tabs" role="tablist">'+tabs.map(function(x){return '<button role="tab" type="button" data-tab="'+x[0]+'" aria-selected="'+(S.tab===x[0])+'">'+x[1]+(x[2]!==""?'<span class="count">'+x[2]+'</span>':'')+'</button>'}).join("")+'</div>'}
+function navHTML(){return '<header class="nav"><div class="wrap"><a class="logo" href="#" data-home><span class="mark" aria-hidden="true">ת</span>Our Yeshiva</a><nav class="nav-links" aria-label="Sections">'+[["donors",t("donors")],["teams",t("teams")],["matchers",t("matchers")],["about",t("about")]].map(function(x){return '<a href="#" data-nav="'+x[0]+'">'+x[1]+'</a>'}).join("")+'</nav><div class="nav-end"><div class="langs" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="'+(S.lang==="en")+'">EN</button><button type="button" data-lang="he" aria-pressed="'+(S.lang==="he")+'">עב</button></div><button class="btn small" type="button" data-donate>'+t("donate")+'</button></div></div></header>'}
+function siteHTML(){var tm=curTeam(),left=Math.max(0,GOAL-cash()-matched()),ml=Math.max(0,CAP-matched());
+ return '<div class="banner demo" role="status">'+t("demo")+'</div>'+navHTML()+
+ '<main><section class="hero"><div class="hero-bg">'+carouselHTML()+'</div><div class="wrap hero-in"><div><span class="eyebrow">'+esc(tm?CAMP.title:CAMP.sub)+'</span><h1>'+esc(tm?tm.name:CAMP.title)+'</h1><p class="lede">'+esc(tm&&tm.msg?tm.msg:CAMP.desc)+'</p><div class="hero-cta"><button class="btn lg" type="button" data-donate>'+t("giveNow")+'</button>'+(tm?'<button class="btn ghost lg" type="button" data-home>← '+t("back")+'</button>':'<button class="btn ghost lg" type="button" data-join>'+t("join")+'</button>')+'</div>'+(tm?'':'<div class="countdown" id="cd" role="timer">'+countdownHTML()+'</div>')+'</div><aside class="goalcard" id="goal" aria-label="Campaign progress">'+goalHTML()+'</aside></div><div class="ticker" id="tick">'+tickerHTML()+'</div></section>'+
+ '<div class="wrap">'+(tm?'':'<div class="stats"><div class="stat"><b>'+donorN().toLocaleString(loc())+'</b><span>'+t("sDonors")+'</span></div><div class="stat"><b>'+teamsAll().length+'</b><span>'+t("sTeams")+'</span></div><div class="stat"><b>'+money(left)+'</b><span>'+t("sToGo")+'</span></div><div class="stat"><b>'+(ml>0?money(ml):"—")+'</b><span>'+t("sMatch")+'</span></div></div>'+
+ '<section class="section"><div class="section-h"><div><h2>'+t("levels")+'</h2><p>'+t("levelsSub")+'</p></div></div><div class="levels">'+LEVELS.map(function(a){return '<button type="button" class="level" data-donate data-amt="'+a+'"><b>'+money(a)+'</b><span>'+t("becomes").replace("{a}",money(a)).replace("{b}",money(a*2))+'</span></button>'}).join("")+'</div></section>')+
+ '<section class="section" id="campaign-tabs">'+tabsHTML()+'<div id="panel">'+panelHTML()+'</div></section></div></main>'+
+ '<footer class="footer"><div class="wrap"><div><strong style="color:#fff">Our Yeshiva</strong><div>Reg. no. and terms are set in the admin panel</div></div><div>'+t("secure")+' · Stripe</div></div></footer><button class="btn primary small share" type="button" data-share>↗ '+t("share")+'</button>'}
+function adminHTML(){var rows=[["bad","Production database","Local JSON store in use. Set STORE=supabase before real money."],["warn","Payments mode","PAYMENTS_MODE=demo (fake checkout, no real money)"],["bad","Stripe secret + publishable keys","Missing. Add sk_test_/pk_test_ first, live keys last."],["bad","Stripe webhook secret","Without it no donation can ever be confirmed."],["bad","Site served over HTTPS","Live payments require https."],["ok","Admin protected","ADMIN_PASSWORD + ADMIN_SESSION_SECRET set."],["warn","Bot protection","No CAPTCHA configured. Strongly recommended."],["warn","Stripe account belongs to the yeshiva","Manual check with the yeshiva's advisers."]];
+ var gs=allGifts().slice().sort(function(a,b){return b.at-a.at}).concat(SEED.slice(0,6)).slice(0,10),pend=teamDocsAll().filter(function(d){return !d.approved});
+ return '<div class="banner demo">'+t("demo")+'</div>'+navHTML()+'<div class="wrap page"><h1 style="margin-bottom:18px">Admin</h1><div class="kpis"><div class="card kpi"><div class="v">'+money(cash())+'</div><div class="l">Cash raised</div></div><div class="card kpi"><div class="v">'+money(matched())+'</div><div class="l">Matched (kept separate)</div></div><div class="card kpi"><div class="v">'+donorN().toLocaleString("en-US")+'</div><div class="l">Donors</div></div><div class="card kpi"><div class="v">0</div><div class="l">Flagged</div></div><div class="card kpi"><div class="v">'+pend.length+'</div><div class="l">Teams awaiting approval</div></div></div>'+
+ '<div class="card" style="margin-bottom:18px"><h2 style="margin-bottom:6px">Team sign-ups</h2>'+(pend.length?'<div class="scroll-x"><table class="t"><tbody>'+pend.map(function(d){return '<tr><td><strong>'+esc(d.name)+'</strong><div class="note">'+esc(d.email||"")+' '+esc(d.phone||"")+'</div><div class="note">'+esc(d.msg||"")+'</div></td><td>'+(d.goal?money(d.goal):"—")+'</td><td><button class="btn small" type="button" data-approve="'+esc(d.id)+'">Approve</button></td></tr>'}).join("")+'</tbody></table></div>':'<p class="note">No sign-ups waiting. Use "Join a team" on the donor site to add one, then approve it here.</p>')+'</div>'+
+ '<div class="card" style="margin-bottom:18px"><h2 style="margin-bottom:6px">Payment system · <span class="pill warn">demo</span></h2><p class="note" style="margin-bottom:12px">Payments are switched on by environment variables, never by a button on the website. Status: <strong style="color:var(--bad)">not ready for real money yet.</strong> Red rows are what you fix during go-live.</p><div class="scroll-x"><table class="t"><tbody>'+rows.map(function(r){return '<tr><td style="width:84px"><span class="pill '+r[0]+'">'+(r[0]==="ok"?"OK":r[0]==="bad"?"FIX":"CHECK")+'</span></td><td><strong>'+r[1]+'</strong><div class="note">'+r[2]+'</div></td></tr>'}).join("")+'</tbody></table></div></div>'+
+ '<div class="card"><h2 style="margin-bottom:10px">Recent donations</h2><div class="scroll-x"><table class="t"><thead><tr><th>When</th><th>Donor</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+gs.map(function(d){return '<tr><td class="note">'+ago(d.at)+'</td><td>'+esc(d.name)+'<div class="note">'+(d.seed?"donor@example.com":"entered in this preview")+' · DEMO</div></td><td>'+money(d.amt,d.cur)+'</td><td><span class="pill ok">succeeded</span></td></tr>'}).join("")+'</tbody></table></div></div></div>'}
+var rt=0;function render(){var y=window.scrollY,q=document.activeElement&&document.activeElement.id==="q",pos=q?document.activeElement.selectionStart:0;
+ $("#app").innerHTML=S.view==="site"?siteHTML():adminHTML();$("#v-site").setAttribute("aria-pressed",S.view==="site");$("#v-admin").setAttribute("aria-pressed",S.view==="admin");
+ document.documentElement.lang=S.lang;document.documentElement.dir=S.lang==="he"?"rtl":"ltr";if(S.view==="site")renderWall();window.scrollTo(0,y);
+ if(q){var el=$("#q");if(el){el.focus();el.setSelectionRange(pos,pos)}}}
+function later(){clearTimeout(rt);rt=setTimeout(render,120)}
+
+// ---- dialogs
+function openDlg(title,body,side){$("#dt").textContent=title;$("#dbody").innerHTML=body;$("#dimg").src=PH[1];$("#dside").textContent=side||CAMP.title;$("#dsub").textContent=curTeam()?t("with")+" "+curTeam().name:"YESHIVA";$("#dsec").textContent="🔒 "+t("secure");var d=$("#dlg");if(!d.open)d.showModal()}
+function donate(pre){var tm=curTeam();
+ openDlg(t("checkout"),'<div class="banner demo" style="border-radius:10px;margin-bottom:14px">'+t("demo")+'</div><form id="df" class="stack"><div><label for="amt">'+t("amount")+'</label><div class="chips" style="margin-bottom:10px">'+LEVELS.map(function(a){return '<button type="button" class="chip" data-p="'+a+'" aria-pressed="false">$'+a.toLocaleString("en-US")+'</button>'}).join("")+'</div><div class="grid2"><div class="amount-in"><span class="sym" id="sym">$</span><input id="amt" inputmode="decimal" autocomplete="off" required placeholder="0"></div><select id="cur" aria-label="'+t("currency")+'"><option>USD</option><option>GBP</option><option>EUR</option><option>ILS</option></select></div><div class="note" id="fxn" hidden></div><div class="matchbox" id="mb" style="margin-top:10px" hidden></div></div>'+
+ '<div class="fieldset-title">'+t("details")+'</div><div class="grid2"><div><label for="fn">'+t("name")+'*</label><input id="fn" required autocomplete="name"></div><div><label for="fe">'+t("email")+'*</label><input id="fe" type="email" required autocomplete="email"></div><div><label for="fa">'+t("addr")+'*</label><input id="fa" required></div><div><label for="fc">'+t("city")+'*</label><input id="fc" required></div></div>'+
+ '<div><label for="fm">'+t("msg")+'</label><textarea id="fm" rows="2" maxlength="300"></textarea></div><div><label for="fd">'+t("ded")+'</label><input id="fd" maxlength="200"></div><label class="check"><input type="checkbox" id="fan">'+t("anonl")+'</label><label class="check"><input type="checkbox" id="fw" checked>'+t("wall")+'</label><label class="check"><input type="checkbox" id="ft" required><span>'+t("terms")+'*</span></label><button class="btn block lg" id="pay" disabled type="submit">'+t("pay")+'</button><p class="note center">'+t("stmt")+'</p></form>');
+ var amt=$("#amt"),cur=$("#cur"),pay=$("#pay"),SYM={USD:"$",GBP:"£",EUR:"€",ILS:"₪"};if(pre)amt.value=pre;
+ function upd(){var v=parseFloat(amt.value.replace(/,/g,"")),ok=isFinite(v)&&v>=1;pay.disabled=!ok;pay.textContent=t("pay")+(ok?" · "+money(v,cur.value):"");$("#sym").textContent=SYM[cur.value];var f=$("#fxn");f.hidden=cur.value==="USD";if(!f.hidden)f.textContent="1 "+cur.value+" = "+FX[cur.value]+" USD";
+  var mb=$("#mb");mb.hidden=!(ok&&cur.value==="USD"&&matched()<CAP);if(!mb.hidden)mb.textContent="✨ "+t("becomes").replace("{a}",money(v)).replace("{b}",money(v*2));
+  [].forEach.call(document.querySelectorAll("[data-p]"),function(b){b.setAttribute("aria-pressed",cur.value==="USD"&&v===Number(b.dataset.p))})}
+ amt.addEventListener("input",upd);cur.addEventListener("change",upd);upd();
+ $("#dbody").onclick=function(e){var p=e.target.closest("[data-p]");if(p){amt.value=p.dataset.p;upd()}};
+ $("#df").addEventListener("submit",function(e){e.preventDefault();var v=parseFloat(amt.value.replace(/,/g,""));
+  var g={name:$("#fn").value.trim()||"Friend",amt:v,cur:cur.value,anon:$("#fan").checked,msg:$("#fm").value.trim(),ded:$("#fd").value.trim(),show:$("#fw").checked,team:S.team,at:Date.now()};
+  $("#dbody").innerHTML='<div class="stack"><p class="note">'+t("demo")+'</p><button class="btn block lg" id="sim" type="button">'+t("sim")+'</button></div>';
+  $("#sim").onclick=function(){saveGift(g);$("#dbody").innerHTML='<div class="center stack"><h2>'+t("thanks")+'</h2><p>'+t("thanks2")+'</p><button class="btn secondary" id="cl" type="button">'+t("back")+'</button></div>';$("#cl").onclick=function(){$("#dlg").close()};S.tab="donors";S.sort="latest";S.q="";render()}})}
+function joinTeam(){openDlg(t("tsTitle"),'<p class="note" style="margin-bottom:14px">'+t("tsIntro")+'</p><form id="tf" class="stack"><div><label for="tn">'+t("tsName")+'*</label><input id="tn" required maxlength="120"></div><div class="grid2"><div><label for="te">'+t("email")+'*</label><input id="te" type="email" required></div><div><label for="tp">'+t("phone")+'</label><input id="tp" type="tel"></div></div><div><label for="tg">'+t("tsGoal")+'</label><input id="tg" inputmode="decimal"></div><div><label for="tm">'+t("tsMsg")+'</label><textarea id="tm" rows="3" maxlength="500"></textarea></div><button class="btn lg" type="submit">'+t("submit")+'</button></form>',t("tsTitle"));
+ $("#tf").addEventListener("submit",function(e){e.preventDefault();var d={name:$("#tn").value.trim(),email:$("#te").value.trim(),phone:$("#tp").value.trim(),goal:parseFloat($("#tg").value.replace(/,/g,""))||0,msg:$("#tm").value.trim(),approved:false,at:Date.now()};saveTeam(d);$("#dbody").innerHTML='<div class="center stack"><p class="ok">'+t("tsThanks")+'</p><button class="btn secondary" id="cl" type="button">OK</button></div>';$("#cl").onclick=function(){$("#dlg").close()}})}
+
+// ---- persistence (shared db when the viewer can write; otherwise stays on this screen)
+function rid(){return "x"+Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function saveGift(g){g.id=rid();S.localGifts.push(g);var o=Object.assign({},g);if(S.db){S.db.collection("gifts").doc(g.id).set(o).catch(function(){flash("Saved on this screen only (this viewer can't write shared data).")})}else flash("Saved on this screen only.")}
+function saveTeam(d){d.id=rid();S.localTeams.push(d);if(S.db){S.db.collection("teams").doc(d.id).set(d).catch(function(){flash("Saved on this screen only.")})}}
+function like(id){if(liked(id))return;S.localLikes[id]=true;if(S.db&&S.uid){S.db.collection("likes").doc(id+"__"+S.uid).set({g:id,uid:S.uid}).catch(function(){})}renderWall()}
+function approve(id){var d=S.localTeams.filter(function(x){return x.id===id})[0];if(d)d.approved=true;if(S.db){S.db.collection("teams").doc(id).update({approved:true}).catch(function(){flash("Only editors of this page can approve teams.")})}render()}
+async function initDb(){try{if(!window.claude||!claude.use)return;var db=await claude.use("db");if(!db)return;var user=await claude.use("user");if(user){S.uid=await user.id();}S.db=db;
+ db.collection("gifts").orderBy("at","desc").limit(400).onSnapshot(function(s){S.gifts=s.docs.map(function(d){return Object.assign({id:d.id},d.data())});later()},function(){});
+ db.collection("likes").limit(1000).onSnapshot(function(s){S.likeDocs=s.docs.map(function(d){return d.data()});later()},function(){});
+ db.collection("teams").limit(200).onSnapshot(function(s){S.teamDocs=s.docs.map(function(d){return Object.assign({id:d.id},d.data())});later()},function(){})}catch(e){}}
+
+// ---- events
+document.addEventListener("click",function(e){var el=e.target.closest("button,a");if(!el)return;
+ if(el.id==="v-site"){S.view="site";render();return}if(el.id==="v-admin"){S.view="admin";render();window.scrollTo(0,0);return}
+ if(el.dataset.lang){S.lang=el.dataset.lang;render();return}
+ if(el.dataset.slide){setSlide(+el.dataset.slide);return}
+ if(el.dataset.donate!==undefined){e.preventDefault();if(S.view!=="site"){S.view="site";render()}donate(el.dataset.amt);return}
+ if(el.dataset.join!==undefined){joinTeam();return}
+ if(el.dataset.home!==undefined){e.preventDefault();S.team=null;S.view="site";S.tab="donors";render();window.scrollTo(0,0);return}
+ if(el.dataset.nav){e.preventDefault();S.view="site";S.team=null;S.tab=el.dataset.nav;render();var c=$("#campaign-tabs");if(c)c.scrollIntoView();return}
+ if(el.dataset.tab){S.tab=el.dataset.tab;S.shown=12;$("#panel").innerHTML=panelHTML();[].forEach.call(document.querySelectorAll(".tabs button"),function(b){b.setAttribute("aria-selected",b.dataset.tab===S.tab)});if(S.tab==="donors")renderWall();return}
+ if(el.dataset.sort){S.sort=el.dataset.sort;[].forEach.call(document.querySelectorAll("[data-sort]"),function(b){b.setAttribute("aria-pressed",b.dataset.sort===S.sort)});renderWall();return}
+ if(el.dataset.like){like(el.dataset.like);return}
+ if(el.dataset.team){S.team=el.dataset.team;S.tab="donors";S.shown=12;S.q="";render();window.scrollTo(0,0);return}
+ if(el.dataset.approve){approve(el.dataset.approve);return}
+ if(el.id==="morebtn"){S.shown+=12;renderWall();return}
+ if(el.dataset.share!==undefined){flash(t("copied")+" (preview)");return}
+ if(el.id==="dx"){$("#dlg").close()}});
+document.addEventListener("input",function(e){if(e.target.id==="q"){S.q=e.target.value;S.shown=12;renderWall()}});
+$("#dlg").addEventListener("click",function(e){if(e.target===$("#dlg"))$("#dlg").close()});
+$("#dlg").addEventListener("close",function(){later()});
+var hold=false;setInterval(function(){if(S.view==="site"&&!hold&&!document.hidden&&!matchMedia("(prefers-reduced-motion: reduce)").matches&&$("#car"))setSlide((S.slide+1)%PH.length)},6000);
+setInterval(function(){var c=$("#cd");if(c)c.innerHTML=countdownHTML()},1000);
+document.addEventListener("mouseover",function(e){if(e.target.closest&&e.target.closest("#car"))hold=true});document.addEventListener("mouseout",function(e){if(e.target.closest&&e.target.closest("#car"))hold=false});
+render();initDb();
+})();
+</script>

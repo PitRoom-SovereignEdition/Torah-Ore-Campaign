@@ -1,13 +1,17 @@
 import Link from "next/link";
 import { CampaignTabs, type MatcherRow, type TeamRow } from "./CampaignTabs";
-import { DonateButton } from "./DonateModal";
+import { Countdown } from "./Countdown";
+import { DonateModal } from "./DonateModal";
+import { DonateTrigger } from "./DonateTrigger";
 import { GoalCard } from "./GoalCard";
 import { HeroCarousel } from "./HeroCarousel";
 import { ShareButton } from "./ShareButton";
+import { Ticker } from "./Ticker";
 import { captchaProvider } from "@/lib/captcha";
 import { limits, paymentsMode } from "@/lib/config";
 import { campaignOpen, getTotals } from "@/lib/donations";
-import { getDict } from "@/lib/i18n";
+import { fmt, getDict } from "@/lib/i18n";
+import { formatMoney } from "@/lib/money";
 import { getStore } from "@/lib/store";
 import type { Team } from "@/lib/types";
 
@@ -22,20 +26,23 @@ function videoEmbed(url: string | null): string | null {
   return null;
 }
 
+const LEVELS = [18, 36, 100, 180, 360, 1000];
+
 export async function CampaignView({ team }: { team: Team | null }) {
   const { t, lang } = await getDict();
   const locale = lang === "he" ? "he-IL" : "en-US";
   const store = getStore();
   const c = await store.getCampaign();
   const [totals, teams] = await Promise.all([getTotals(c), store.listTeams()]);
+  const fm = (x: number) => formatMoney(x, c.currency, locale, true);
 
   const scoped = team ? (totals.teamTotals[team.id] ?? { cashCents: 0, count: 0 }) : null;
   const initial = scoped
     ? { cashCents: scoped.cashCents, matchedCents: 0, donorCount: scoped.count }
     : { cashCents: totals.cashCents, matchedCents: totals.matchedCents, donorCount: totals.donorCount };
 
-  const teamRows: TeamRow[] = teams
-    .filter((x) => x.approved)
+  const approved = teams.filter((x) => x.approved);
+  const teamRows: TeamRow[] = approved
     .map((x) => ({ id: x.id, name: x.name, goalCents: x.goalCents, cashCents: totals.teamTotals[x.id]?.cashCents ?? 0, count: totals.teamTotals[x.id]?.count ?? 0 }))
     .sort((a, b) => b.cashCents - a.cashCents);
   const matcherRows: MatcherRow[] = totals.matchers.map((m) => ({
@@ -43,76 +50,111 @@ export async function CampaignView({ team }: { team: Team | null }) {
     matchedCents: m.matchedCents, windowEnd: m.matcher.windowEnd,
   }));
 
-  const embed = videoEmbed(c.videoUrl);
-  const short = c.description.length > 160 ? c.description.slice(0, 160).trimEnd() + "…" : c.description;
-  const goalCents = team?.goalCents ?? c.goalCents;
-  const mode = paymentsMode();
-  const provider = captchaProvider();
+  const now = new Date().toISOString();
+  const liveMatchers = totals.matchers.filter((m) => m.remainingCents > 0 && m.matcher.windowStart <= now && m.matcher.windowEnd >= now);
+  const matchMultiplier = liveMatchers.length ? Math.max(...liveMatchers.map((m) => m.matcher.multiplier)) : 0;
+  const matchLeft = liveMatchers.reduce((s, m) => s + m.remainingCents, 0);
 
-  const donate = (
-    <DonateButton
-      t={t}
-      locale={locale}
-      mode={mode}
-      open={campaignOpen(c)}
-      currency={c.currency}
-      fxRates={c.fxRates}
-      presets={[18, 36, 100, 180, 360, 1000]}
-      teamId={team?.id ?? null}
-      teamName={team?.name ?? null}
-      statementDescriptor={c.statementDescriptor}
-      charityRegNo={c.charityRegNo}
-      termsUrl={c.termsUrl}
-      captcha={{ provider, siteKey: process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY ?? "" }}
-      minCents={limits.minCents}
-    />
-  );
+  const embed = videoEmbed(c.videoUrl);
+  const goalCents = team?.goalCents ?? c.goalCents;
+  const total = initial.cashCents + initial.matchedCents;
+  const mode = paymentsMode();
+  const open = campaignOpen(c);
+  const blocked = mode === "disabled" || !open;
+  const provider = captchaProvider();
+  const images = c.heroMedia.length ? c.heroMedia : ["/hero.svg"];
+
+  const donateLabel = !open ? t.campaignEnded : mode === "disabled" ? t.opensSoon : t.donate;
 
   return (
-    <main className="wrap page">
-      <div className="title">
-        <h1>{team ? team.name : c.title}</h1>
-        <p>{team ? c.title : c.subtitle}</p>
-      </div>
-
-      <div className="hero">
-        <div className="hero-media">
+    <main>
+      <section className="hero">
+        <div className="hero-bg">
           {embed ? (
-            <iframe src={embed} title="Campaign video" allow="fullscreen; picture-in-picture" loading="lazy" referrerPolicy="strict-origin-when-cross-origin" />
+            <iframe src={embed} title="Campaign video" allow="fullscreen; picture-in-picture" loading="lazy" referrerPolicy="strict-origin-when-cross-origin" style={{ width: "100%", height: "100%", border: 0 }} />
           ) : (
-            <HeroCarousel images={c.heroMedia.length ? c.heroMedia : ["/hero.svg"]} />
+            <HeroCarousel images={images} />
           )}
         </div>
-        <GoalCard
-          t={t}
-          locale={locale}
-          currency={c.currency}
-          goalCents={goalCents}
-          bonusGoalCents={team ? null : c.bonusGoalCents}
-          initial={initial}
-          teamId={team?.id ?? null}
-        >
-          {donate}
-          {team && <Link href="/" className="note center">← {t.backToCampaign}</Link>}
-        </GoalCard>
+        <div className="wrap hero-in">
+          <div>
+            <span className="eyebrow">{team ? c.title : c.subtitle}</span>
+            <h1>{team ? team.name : c.title}</h1>
+            <p className="lede">{team?.message || c.description}</p>
+            <div className="hero-cta">
+              <DonateTrigger className="btn lg" disabled={blocked}>{blocked ? donateLabel : t.giveNow}</DonateTrigger>
+              {!team && <Link href="/team-signup" className="btn ghost lg">{t.joinTeam}</Link>}
+              {team && <Link href="/" className="btn ghost lg">← {t.backToCampaign}</Link>}
+            </div>
+            {c.endsAt && open && !team && <Countdown endsAt={c.endsAt} labels={[t.days, t.hours, t.mins, t.secs]} />}
+          </div>
+          <GoalCard t={t} locale={locale} currency={c.currency} goalCents={goalCents} bonusGoalCents={team ? null : c.bonusGoalCents} initial={initial} teamId={team?.id ?? null}>
+            <div className="card-actions">
+              <DonateTrigger className="btn lg block" disabled={blocked}>{donateLabel}</DonateTrigger>
+              <div className="secure">🔒 {t.secure} · Stripe</div>
+            </div>
+          </GoalCard>
+        </div>
+        <Ticker t={t} locale={locale} />
+      </section>
+
+      <div className="wrap">
+        {!team && (
+          <div className="stats">
+            <div className="stat"><b>{initial.donorCount.toLocaleString(locale)}</b><span>{t.statDonors}</span></div>
+            <div className="stat"><b>{approved.length}</b><span>{t.statTeams}</span></div>
+            <div className="stat"><b>{fm(Math.max(0, goalCents - total))}</b><span>{t.statToGo}</span></div>
+            <div className="stat"><b>{matchLeft > 0 ? fm(matchLeft) : "—"}</b><span>{t.statMatchLeft}</span></div>
+          </div>
+        )}
+
+        {!team && (
+          <section className="section" id="give">
+            <div className="section-h"><div><h2>{t.levelsTitle}</h2><p>{t.levelsSub}</p></div></div>
+            <div className="levels">
+              {LEVELS.map((a) => (
+                <DonateTrigger key={a} amount={a} className="level" disabled={blocked}>
+                  <b>{formatMoney(a * 100, c.currency, locale, true)}</b>
+                  <span>{matchMultiplier > 0 ? fmt(t.becomes, { a: formatMoney(a * 100, c.currency, locale, true), b: formatMoney(Math.round(a * 100 * (1 + matchMultiplier)), c.currency, locale, true) }) : t.donate}</span>
+                </DonateTrigger>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <section className="section" id="campaign-tabs">
+          <CampaignTabs
+            t={t}
+            locale={locale}
+            currency={c.currency}
+            teamId={team?.id ?? null}
+            donorCount={initial.donorCount}
+            teams={teamRows}
+            matchers={matcherRows}
+            longDescription={c.longDescription}
+            storyTitle={t.storyTitle}
+          />
+        </section>
       </div>
 
-      <details className="desc">
-        <summary style={{ listStyle: "none" }}>
-          {team?.message || short} <span style={{ color: "var(--brand)", textDecoration: "underline", cursor: "pointer" }}>{t.more}</span>
-        </summary>
-        <p>{c.description}</p>
-      </details>
-
-      <CampaignTabs
+      <DonateModal
         t={t}
         locale={locale}
+        mode={mode}
+        open={open}
         currency={c.currency}
+        fxRates={c.fxRates}
+        presets={LEVELS}
         teamId={team?.id ?? null}
-        donorCount={initial.donorCount}
-        teams={teamRows}
-        matchers={matcherRows}
-        longDescription={c.longDescription}
+        teamName={team?.name ?? null}
+        statementDescriptor={c.statementDescriptor}
+        charityRegNo={c.charityRegNo}
+        termsUrl={c.termsUrl}
+        captcha={{ provider, siteKey: process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY ?? "" }}
+        minCents={limits.minCents}
+        matchMultiplier={matchMultiplier}
+        heroImage={images[images.length > 1 ? 1 : 0]}
+        title={c.title}
       />
       <ShareButton title={c.title} label={t.share} copied={t.copied} />
     </main>

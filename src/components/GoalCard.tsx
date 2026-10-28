@@ -24,15 +24,10 @@ export function GoalCard({ t, locale, currency, goalCents, bonusGoalCents, initi
       try {
         const r = await fetch(`/api/totals${teamId ? `?team=${encodeURIComponent(teamId)}` : ""}`, { cache: "no-store" });
         if (r.ok && !stop) setTot(await r.json());
-      } catch {
-        /* keep last value */
-      }
+      } catch { /* keep last value */ }
     };
     const id = setInterval(tick, 15000);
-    return () => {
-      stop = true;
-      clearInterval(id);
-    };
+    return () => { stop = true; clearInterval(id); };
   }, [teamId]);
 
   const total = tot.cashCents + tot.matchedCents;
@@ -44,15 +39,11 @@ export function GoalCard({ t, locale, currency, goalCents, bonusGoalCents, initi
   const fm = (c: number) => formatMoney(c, currency, locale);
 
   return (
-    <aside className="card goal" aria-label="Campaign progress">
-      {passed && (
-        <div className="trophy" aria-hidden="true">
-          🏆 {t.bonusGoal} · {t.originalGoal}: {fm(goalCents)} ✓
-        </div>
-      )}
+    <aside className="goalcard" aria-label="Campaign progress">
+      {passed && <div className="trophy">🏆 {t.bonusGoal} · {t.originalGoal}: {fm(goalCents)} ✓</div>}
       <div>
         <div className="big" aria-live="polite">{fm(total)}</div>
-        <div className="sub">{t.raisedOf.replace("{goal}", fm(target))}</div>
+        <div className="label" style={{ marginTop: 6 }}>{t.raisedOf.replace("{goal}", fm(target))}</div>
       </div>
       <div className="bar" role="progressbar" aria-valuenow={Math.min(pct, 999)} aria-valuemin={0} aria-valuemax={100}>
         <i className="matched" style={{ width: `${totalW}%` }} />
@@ -60,13 +51,10 @@ export function GoalCard({ t, locale, currency, goalCents, bonusGoalCents, initi
       </div>
       <div className="pct">
         <span>{pct}%</span>
-        <span>{t.donationsCount.replace("{n}", String(tot.donorCount))}</span>
+        <span>{t.donationsCount.replace("{n}", tot.donorCount.toLocaleString(locale))}</span>
       </div>
       {tot.matchedCents > 0 && (
-        <div className="row">
-          <span>{fm(tot.cashCents)} + {fm(tot.matchedCents)}</span>
-          <span>{t.matched}</span>
-        </div>
+        <div className="mrow"><span aria-hidden="true">✨</span><span><b>{fm(tot.matchedCents)}</b> {t.matched}</span></div>
       )}
       {children}
     </aside>

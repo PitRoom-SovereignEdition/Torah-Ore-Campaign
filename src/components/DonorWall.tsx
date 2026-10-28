@@ -67,10 +67,12 @@ export function DonorWall({ t, locale, teamId }: { t: Dict; locale: string; team
         <div className="wall">
           {items.map((d) => (
             <article key={d.id} className="card donor">
-              <div className="avatar" aria-hidden="true">{d.initials}</div>
+              <div className={`avatar${d.displayName === "Anonymous" ? " anon" : ""}`} aria-hidden="true">{d.initials}</div>
               <div>
-                <div className="who">{d.displayName === "Anonymous" ? t.anonymous : d.displayName}</div>
-                <div className="amt">{formatMoney(d.amountCents, d.currency, locale)}</div>
+                <div className="top">
+                  <div className="who">{d.displayName === "Anonymous" ? t.anonymous : d.displayName}</div>
+                  <div className="amt">{formatMoney(d.amountCents, d.currency, locale, true)}</div>
+                </div>
                 {d.teamName && (
                   <div className="with">
                     {t.with} <a href={`/t/${d.teamId}`}>{d.teamName}</a>

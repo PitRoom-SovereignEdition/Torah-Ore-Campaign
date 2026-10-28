@@ -24,42 +24,60 @@ interface Props {
   termsUrl: string;
   captcha: { provider: "turnstile" | "hcaptcha" | null; siteKey: string };
   minCents: number;
+  /** Extra dollars per dollar from active matchers (0 = none). */
+  matchMultiplier: number;
 }
 
-export function DonateButton(props: Props) {
+export function DonateModal(props: Props & { heroImage: string; title: string }) {
   const { t, mode, open } = props;
   const dlg = useRef<HTMLDialogElement>(null);
   const [step, setStep] = useState<Step>({ kind: "form" });
+  const [prefill, setPrefill] = useState<number | null>(null);
+  const [nonce, setNonce] = useState(0);
 
-  if (!open) return <p className="note">{t.campaignEnded}</p>;
-  if (mode === "disabled") return <button className="btn" disabled>{t.opensSoon}</button>;
+  useEffect(() => {
+    const onDonate = (e: Event) => {
+      const d = (e as CustomEvent<{ amount?: number; handled?: boolean }>).detail;
+      if (d) d.handled = true;
+      if (!open || mode === "disabled") return;
+      setPrefill(d?.amount ?? null);
+      setStep({ kind: "form" });
+      setNonce((n) => n + 1);
+      dlg.current?.showModal();
+    };
+    window.addEventListener("donate", onDonate);
+    if (new URLSearchParams(location.search).get("donate") === "1") onDonate(new CustomEvent("donate", { detail: {} }));
+    return () => window.removeEventListener("donate", onDonate);
+  }, [open, mode]);
 
   return (
-    <>
-      <button
-        className="btn"
-        onClick={() => {
-          setStep({ kind: "form" });
-          dlg.current?.showModal();
-        }}
-      >
-        {t.donate}
-      </button>
-      <dialog ref={dlg} aria-labelledby="donate-title" onClick={(e) => e.target === dlg.current && dlg.current?.close()}>
-        <div className="modal-h">
-          <h2 id="donate-title">{t.donate}{props.teamName ? ` · ${props.teamName}` : ""}</h2>
-          <button type="button" className="x" aria-label="Close" onClick={() => dlg.current?.close()}>×</button>
+    <dialog ref={dlg} aria-labelledby="donate-title" onClick={(e) => e.target === dlg.current && dlg.current?.close()}>
+      <div className="modal">
+        <div className="modal-side" aria-hidden="true">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={props.heroImage} alt="" />
+          <div className="in">
+            <h3>{props.title}</h3>
+            <p>{props.teamName ? `${t.with} ${props.teamName}` : props.statementDescriptor}</p>
+            <p>🔒 {t.secure}</p>
+          </div>
         </div>
-        <div className="modal-b">
-          {mode === "demo" && <p className="banner demo" style={{ borderRadius: 8, marginTop: 0 }}>{t.demoBanner}</p>}
-          <Body {...props} step={step} setStep={setStep} />
+        <div className="modal-main">
+          <div className="modal-h">
+            <h2 id="donate-title">{t.checkout}</h2>
+            <button type="button" className="x" aria-label="Close" onClick={() => dlg.current?.close()}>×</button>
+          </div>
+          <div className="modal-b">
+            {mode === "demo" && <p className="banner demo" style={{ borderRadius: 10, marginTop: 0 }}>{t.demoBanner}</p>}
+            <Body {...props} key={nonce} prefill={prefill} step={step} setStep={setStep} />
+          </div>
         </div>
-      </dialog>
-    </>
+      </div>
+    </dialog>
   );
 }
 
-function Body(p: Props & { step: Step; setStep: (s: Step) => void }) {
+function Body(p: Props & { prefill: number | null; step: Step; setStep: (s: Step) => void }) {
   const { t, step } = p;
   if (step.kind === "demo") return <Demo t={t} donationId={step.donationId} />;
   if (step.kind === "stripe")
@@ -85,10 +103,10 @@ function Demo({ t, donationId }: { t: Dict; donationId: string }) {
   );
 }
 
-function DonateForm({ t, locale, currency, fxRates, presets, teamId, statementDescriptor, charityRegNo, termsUrl, captcha, minCents, setStep }: Props & { setStep: (s: Step) => void }) {
+function DonateForm({ t, locale, currency, fxRates, presets, teamId, statementDescriptor, charityRegNo, termsUrl, captcha, minCents, matchMultiplier, prefill, setStep }: Props & { prefill: number | null; setStep: (s: Step) => void }) {
   const currencies = useMemo(() => [currency, ...Object.keys(fxRates).filter((c) => c !== currency)], [currency, fxRates]);
   const [cur, setCur] = useState(currency);
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(prefill ? String(prefill) : "");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [token, setToken] = useState("");
@@ -147,11 +165,14 @@ function DonateForm({ t, locale, currency, fxRates, presets, teamId, statementDe
           ))}
         </div>
         <div className="grid2">
-          <input id="amt" inputMode="decimal" autoComplete="off" required value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" aria-describedby="fx" />
+          <div className="amount-in"><span className="sym" aria-hidden="true">{formatMoney(0, cur, locale, true).replace(/[\d\s.,]/g, "")}</span><input id="amt" inputMode="decimal" autoComplete="off" required value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0" aria-describedby="fx" /></div>
           <select aria-label={t.currency} value={cur} onChange={(e) => setCur(e.target.value)}>
             {currencies.map((c) => <option key={c}>{c}</option>)}
           </select>
         </div>
+        {matchMultiplier > 0 && valid && cur === currency && (
+          <div className="matchbox" style={{ marginTop: 10 }}>✨ {t.becomes.replace("{a}", formatMoney(Math.round(amt * 100), cur, locale)).replace("{b}", formatMoney(Math.round(amt * 100 * (1 + matchMultiplier)), cur, locale))}</div>
+        )}
         {cur !== currency && (
           <div id="fx" className="note">1 {cur} = {rate} {currency}</div>
         )}

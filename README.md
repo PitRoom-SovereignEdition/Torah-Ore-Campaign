@@ -96,6 +96,6 @@ npm run build
 
 ## Previewing without hosting anything
 
-`preview/index.html` is a single self-contained file: a clickable mock of the donor site and the admin panel on demo
+`preview/index.html` is a single self-contained file (rebuilt from the real app CSS and photos by `python3 scripts/build-preview.py`): a clickable demo of the donor site and admin panel. It runs entirely in the browser on demo data, with no server and no payments. As an Artifact it also saves gifts, likes and team sign-ups to a shared store.
 data (no server, no payments). Open it in any browser, or publish it anywhere that serves static files.
 To see the real app instead, follow "Try it in 2 minutes" above.
