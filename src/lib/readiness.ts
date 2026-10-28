@@ -11,7 +11,7 @@ export function readiness(c: Campaign): { checks: Check[]; liveReady: boolean } 
   const https = siteUrl().startsWith("https://");
   const checks: Check[] = [
     { id: "store", label: "Production database", status: process.env.STORE === "supabase" ? "ok" : "bad", blocksLive: true,
-      detail: process.env.STORE === "supabase" ? "Supabase store active." : "Using the local JSON file store. Set STORE=supabase (+ SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY) before real money." },
+      detail: process.env.STORE === "supabase" ? "Supabase store active." : "Using a temporary store (local file or in-memory preview). Data is lost on restart. Set STORE=supabase (+ SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY) before real money." },
     { id: "mode", label: "Payments mode", status: mode === "stripe" ? "ok" : "warn", blocksLive: false,
       detail: `PAYMENTS_MODE=${mode}` + (mode === "demo" ? " (fake checkout, no real money)" : mode === "disabled" ? " (donations closed)" : "") },
     { id: "skey", label: "Stripe secret key", status: key === "missing" ? "bad" : "ok", blocksLive: true,

@@ -11,7 +11,10 @@ import type { Campaign } from "./types";
 export type PaymentsMode = "disabled" | "demo" | "stripe";
 
 export function paymentsMode(): PaymentsMode {
-  const m = (process.env.PAYMENTS_MODE ?? "disabled").toLowerCase();
+  // Zero-config preview deploy (Vercel, nothing configured): fake checkout so the site is explorable.
+  // The moment any Stripe key or an explicit mode is set, this no longer applies.
+  const zeroConfig = !!process.env.VERCEL && !process.env.STRIPE_SECRET_KEY && !process.env.STORE;
+  const m = (process.env.PAYMENTS_MODE ?? (zeroConfig ? "demo" : "disabled")).toLowerCase();
   if (m === "demo" || m === "stripe") return m;
   return "disabled";
 }

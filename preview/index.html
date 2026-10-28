@@ -254,10 +254,9 @@ dialog::backdrop { background: rgba(5, 12, 45, .65); backdrop-filter: blur(3px);
 .kpi .l { color: var(--muted); font-size: 13px; }
 
 body{padding-bottom:0}
-.pv{background:#0a1a4f;color:#cfe0ff;font-size:13px;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between;padding:7px 16px}
-.pv b{color:#fff;letter-spacing:.06em}
-.seg{display:flex;gap:4px}.seg button{border:1px solid rgba(255,255,255,.4);background:transparent;color:#fff;border-radius:999px;padding:3px 12px;cursor:pointer;font:inherit;font-size:13px}
-.seg button[aria-pressed="true"]{background:#fff;color:#0a1a4f}
+.pvpill{position:fixed;inset-block-end:calc(16px + env(safe-area-inset-bottom,0px));inset-inline-start:16px;z-index:40;display:flex;gap:2px;background:rgba(10,26,79,.92);padding:3px;border-radius:999px;box-shadow:var(--shadow)}
+.pvpill button{border:0;background:transparent;color:#cfe0ff;border-radius:999px;padding:6px 12px;cursor:pointer;font:inherit;font-size:12px;font-weight:700}
+.pvpill button[aria-pressed="true"]{background:#fff;color:#0a1a4f}
 .nav{top:env(safe-area-inset-top,0px)}
 .flash{position:fixed;inset-inline:0;top:calc(14px + env(safe-area-inset-top,0px));display:flex;justify-content:center;z-index:60;pointer-events:none}
 .flash div{background:var(--ink);color:var(--card);padding:10px 18px;border-radius:999px;font-weight:700;box-shadow:var(--shadow);max-width:92vw}
@@ -267,8 +266,7 @@ body{padding-bottom:0}
 .footer{margin-top:60px}
 </style>
 
-<div class="pv"><span><b>PREVIEW</b> · demo data and demo checkout. Gifts, likes and team sign-ups you add are saved and shared with everyone who opens this page.</span>
-<div class="seg" role="group" aria-label="Preview view"><button type="button" id="v-site" aria-pressed="true">Donor site</button><button type="button" id="v-admin" aria-pressed="false">Admin panel</button></div></div>
+<div class="pvpill" role="group" aria-label="Preview view"><button type="button" id="v-site" aria-pressed="true">Donor site</button><button type="button" id="v-admin" aria-pressed="false">Admin</button></div>
 <div id="app"></div>
 <div class="flash" id="flash" hidden><div id="flashmsg"></div></div>
 <dialog id="dlg" aria-labelledby="dt"><div class="modal"><div class="modal-side" aria-hidden="true"><img id="dimg" alt=""><div class="in"><h3 id="dside"></h3><p id="dsub"></p><p id="dsec"></p></div></div><div class="modal-main"><div class="modal-h"><h2 id="dt"></h2><button class="x" type="button" id="dx" aria-label="Close">×</button></div><div class="modal-b" id="dbody"></div></div></div></dialog>

@@ -25,12 +25,20 @@ export class JsonStore implements Store {
   private cache: DB | null = null;
   private chain: Promise<unknown> = Promise.resolve();
 
-  constructor(file = process.env.JSON_STORE_PATH ?? path.join(process.cwd(), ".data", "db.json")) {
-    this.file = file;
+  private memory: boolean;
+
+  /**
+   * `memory: true` keeps everything in process memory (no disk), for zero-config preview deploys where
+   * the filesystem is read-only. Data resets whenever the server instance restarts.
+   */
+  constructor(opts: { file?: string; memory?: boolean } = {}) {
+    this.file = opts.file ?? process.env.JSON_STORE_PATH ?? path.join(process.cwd(), ".data", "db.json");
+    this.memory = !!opts.memory;
   }
 
   private async load(): Promise<DB> {
     if (this.cache) return this.cache;
+    if (this.memory) return (this.cache = empty());
     try {
       this.cache = { ...empty(), ...(JSON.parse(await fs.readFile(this.file, "utf8")) as DB) };
     } catch {
@@ -44,7 +52,7 @@ export class JsonStore implements Store {
     const run = async () => {
       const db = await this.load();
       const out = await fn(db);
-      if (write) {
+      if (write && !this.memory) {
         await fs.mkdir(path.dirname(this.file), { recursive: true });
         const tmp = `${this.file}.tmp`;
         await fs.writeFile(tmp, JSON.stringify(db, null, 2));
